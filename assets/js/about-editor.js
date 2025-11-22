@@ -18,15 +18,20 @@ let aboutData = null;
 
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('About editor 초기화 시작');
+  
   // 인증 상태 확인
   onAuthStateChanged(auth, async (user) => {
+    console.log('인증 상태:', user ? user.email : '비로그인');
     isAdmin = user && user.email === ADMIN_EMAIL;
+    console.log('관리자 여부:', isAdmin);
     
     // About 데이터 로드
     await loadAboutData();
     
     // 관리자면 편집 버튼 표시
     if (isAdmin) {
+      console.log('편집 버튼 표시 시작');
       showEditButtons();
     }
   });
@@ -35,16 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // About 데이터 로드
 async function loadAboutData() {
   try {
+    console.log('About 데이터 로드 시작');
     const docRef = doc(db, 'about', 'profile');
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
+      console.log('기존 데이터 로드 성공');
       aboutData = docSnap.data();
       renderAboutData();
     } else {
+      console.log('초기 데이터 생성');
       // 초기 데이터 생성
       aboutData = getDefaultAboutData();
       await setDoc(docRef, aboutData);
+      console.log('초기 데이터 저장 완료');
     }
   } catch (error) {
     console.error('About 데이터 로딩 실패:', error);
@@ -184,36 +193,51 @@ function renderContacts() {
 
 // 관리자 편집 버튼 표시
 function showEditButtons() {
+  console.log('showEditButtons 실행');
+  
   // 프로필 편집 버튼
   const aboutIntro = document.querySelector('.about-intro');
+  console.log('aboutIntro:', aboutIntro);
   if (aboutIntro) {
     const editBtn = createEditButton('프로필 편집', () => editProfile());
     aboutIntro.appendChild(editBtn);
+    console.log('프로필 편집 버튼 추가됨');
   }
   
   // 기술 스택 편집 버튼
-  const skillsSection = document.querySelector('.about-section:nth-of-type(1) .section-title');
+  const allSections = document.querySelectorAll('.about-section');
+  console.log('전체 섹션 수:', allSections.length);
+  
+  const skillsSection = allSections[0]?.querySelector('.section-title');
+  console.log('skillsSection:', skillsSection);
   if (skillsSection) {
     const editBtn = createEditButton('편집', () => editSkills());
     editBtn.style.float = 'right';
     skillsSection.appendChild(editBtn);
+    console.log('기술 스택 편집 버튼 추가됨');
   }
   
   // 경력 편집 버튼
-  const expSection = document.querySelector('.about-section:nth-of-type(2) .section-title');
+  const expSection = allSections[1]?.querySelector('.section-title');
+  console.log('expSection:', expSection);
   if (expSection) {
     const editBtn = createEditButton('편집', () => editExperiences());
     editBtn.style.float = 'right';
     expSection.appendChild(editBtn);
+    console.log('경력 편집 버튼 추가됨');
   }
   
-  // 연락처 편집 버튼
-  const contactSection = document.querySelector('.about-section:nth-of-type(4) .section-title');
+  // 연락처 편집 버튼 (관심사 다음이므로 index 3)
+  const contactSection = allSections[3]?.querySelector('.section-title');
+  console.log('contactSection:', contactSection);
   if (contactSection) {
     const editBtn = createEditButton('편집', () => editContacts());
     editBtn.style.float = 'right';
     contactSection.appendChild(editBtn);
+    console.log('연락처 편집 버튼 추가됨');
   }
+  
+  console.log('모든 편집 버튼 추가 완료');
 }
 
 // 편집 버튼 생성
