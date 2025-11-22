@@ -11,6 +11,9 @@ import {
   getDoc,
   doc,
   updateDoc,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
   ADMIN_EMAIL
 } from './firebase-config.js';
 
@@ -18,6 +21,7 @@ import {
 let isAdmin = false;
 let currentPostId = null;
 let tags = [];
+let currentUser = null;
 
 // DOM 요소
 const authMessage = document.getElementById('auth-message');
@@ -31,6 +35,8 @@ const excerptInput = document.getElementById('excerpt');
 const contentInput = document.getElementById('content');
 const tagsContainer = document.getElementById('tags-container');
 const tagInput = document.getElementById('tag-input');
+const authButton = document.getElementById('auth-button');
+const userInfo = document.getElementById('user-info');
 
 // Travel 필드
 const locationInput = document.getElementById('location');
@@ -44,7 +50,11 @@ const statusInput = document.getElementById('status');
 document.addEventListener('DOMContentLoaded', () => {
   // 인증 상태 확인
   onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
     isAdmin = user && user.email === ADMIN_EMAIL;
+    
+    // UI 업데이트
+    updateAuthUI();
     
     if (isAdmin) {
       authMessage.style.display = 'none';
@@ -74,7 +84,59 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 초기 카테고리 필드 설정
   handleCategoryChange();
+  
+  // 인증 버튼 클릭 이벤트
+  if (authButton) {
+    authButton.addEventListener('click', handleAuthClick);
+  }
 });
+
+// 인증 UI 업데이트
+function updateAuthUI() {
+  if (!authButton) return;
+  
+  if (currentUser) {
+    // 로그인 상태
+    authButton.textContent = '로그아웃';
+    authButton.classList.add('logged-in');
+    
+    if (userInfo) {
+      userInfo.textContent = currentUser.email;
+      userInfo.style.display = 'inline';
+    }
+  } else {
+    // 로그아웃 상태
+    authButton.textContent = '로그인';
+    authButton.classList.remove('logged-in');
+    
+    if (userInfo) {
+      userInfo.style.display = 'none';
+    }
+  }
+}
+
+// 인증 버튼 클릭 처리
+async function handleAuthClick() {
+  if (currentUser) {
+    // 로그아웃
+    try {
+      await signOut(auth);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+      alert('로그아웃에 실패했습니다.');
+    }
+  } else {
+    // 로그인
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      alert('로그인에 실패했습니다.');
+    }
+  }
+}
 
 // 카테골0리 변경 처리
 function handleCategoryChange() {
