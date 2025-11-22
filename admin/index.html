@@ -204,6 +204,31 @@
             <input type="text" class="form-input" id="excerpt" placeholder="짧은 요약을 입력하세요">
           </div>
           
+          <!-- Travel 전용 필드 -->
+          <div class="form-group category-field" data-category="travel" style="display: none;">
+            <label class="form-label" for="location">위치</label>
+            <input type="text" class="form-input" id="location" placeholder="예: 🇯🇵 일본, 교토">
+          </div>
+          
+          <div class="form-group category-field" data-category="travel" style="display: none;">
+            <label class="form-label" for="emoji">이모지</label>
+            <input type="text" class="form-input" id="emoji" placeholder="예: 🗾">
+          </div>
+          
+          <!-- Projects 전용 필드 -->
+          <div class="form-group category-field" data-category="projects" style="display: none;">
+            <label class="form-label" for="project-emoji">프로젝트 이모지</label>
+            <input type="text" class="form-input" id="project-emoji" placeholder="예: 🚀">
+          </div>
+          
+          <div class="form-group category-field" data-category="projects" style="display: none;">
+            <label class="form-label" for="status">상태</label>
+            <select class="form-select" id="status">
+              <option value="active">운영 중</option>
+              <option value="planning">기획 중</option>
+            </select>
+          </div>
+          
           <!-- 본문 -->
           <div class="form-group">
             <label class="form-label" for="content">본문</label>

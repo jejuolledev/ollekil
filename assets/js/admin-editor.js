@@ -32,6 +32,14 @@ const contentInput = document.getElementById('content');
 const tagsContainer = document.getElementById('tags-container');
 const tagInput = document.getElementById('tag-input');
 
+// Travel 필드
+const locationInput = document.getElementById('location');
+const emojiInput = document.getElementById('emoji');
+
+// Projects 필드
+const projectEmojiInput = document.getElementById('project-emoji');
+const statusInput = document.getElementById('status');
+
 // 초기화
 document.addEventListener('DOMContentLoaded', () => {
   // 인증 상태 확인
@@ -60,7 +68,30 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 태그 입력
   tagInput.addEventListener('keydown', handleTagInput);
+  
+  // 카테고리 변경 시 필드 표시/숨김
+  categoryInput.addEventListener('change', handleCategoryChange);
+  
+  // 초기 카테고리 필드 설정
+  handleCategoryChange();
 });
+
+// 카테골0리 변경 처리
+function handleCategoryChange() {
+  const category = categoryInput.value;
+  const categoryFields = document.querySelectorAll('.category-field');
+  
+  // 모든 카테고리 필드 숨김
+  categoryFields.forEach(field => {
+    field.style.display = 'none';
+  });
+  
+  // 선택된 카테고리 필드만 표시
+  const selectedFields = document.querySelectorAll(`[data-category="${category}"]`);
+  selectedFields.forEach(field => {
+    field.style.display = 'block';
+  });
+}
 
 // 포스트 불러오기 (수정 시)
 async function loadPost(postId) {
@@ -82,6 +113,18 @@ async function loadPost(postId) {
       tags = post.tags || [];
       renderTags();
       
+      // 카테고리별 필드 복원
+      if (post.category === 'travel') {
+        locationInput.value = post.location || '';
+        emojiInput.value = post.emoji || '';
+      } else if (post.category === 'projects') {
+        projectEmojiInput.value = post.emoji || '';
+        statusInput.value = post.status || 'active';
+      }
+      
+      // 카테고리 필드 표시
+      handleCategoryChange();
+      
       currentPostId = postId;
     } else {
       alert('포스트를 찾을 수 없습니다.');
@@ -102,14 +145,24 @@ async function handleSubmit(e) {
     return;
   }
   
+  const category = categoryInput.value;
   const postData = {
-    category: categoryInput.value,
+    category: category,
     title: titleInput.value,
     excerpt: excerptInput.value,
     content: contentInput.value,
     tags: tags,
     updatedAt: new Date().toISOString(),
   };
+  
+  // 카테고리별 추가 필드
+  if (category === 'travel') {
+    postData.location = locationInput.value;
+    postData.emoji = emojiInput.value;
+  } else if (category === 'projects') {
+    postData.emoji = projectEmojiInput.value;
+    postData.status = statusInput.value;
+  }
   
   try {
     if (currentPostId) {

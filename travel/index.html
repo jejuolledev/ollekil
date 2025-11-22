@@ -104,6 +104,12 @@
             <li><a href="../about/">About</a></li>
           </ul>
         </nav>
+        
+        <div class="auth-section">
+          <span id="user-info"></span>
+          <button id="auth-button">로그인</button>
+          <a href="../admin/" class="btn btn-ghost admin-only">글쓰기</a>
+        </div>
       </div>
     </header>
 
@@ -118,71 +124,9 @@
           </p>
         </div>
 
-        <!-- 여행 그리드 -->
-        <div class="travel-grid">
-          <!-- 예시 여행 1 -->
-          <article class="travel-card">
-            <a href="#">
-              <div class="travel-image">🗾</div>
-              <div class="travel-content">
-                <div class="travel-location">🇯🇵 일본, 교토</div>
-                <h2 class="travel-title">천년의 고도, 교토에서의 3일</h2>
-                <time class="travel-date">2024년 10월</time>
-                <p class="travel-excerpt">
-                  가을의 교토는 정말 아름답다는 말이 과장이 아니었다. 
-                  특히 아라시야마의 단풍과 기온 골목의 고즈넉한 분위기가 인상적이었다.
-                </p>
-              </div>
-            </a>
-          </article>
-
-          <!-- 예시 여행 2 -->
-          <article class="travel-card">
-            <a href="#">
-              <div class="travel-image">🏔️</div>
-              <div class="travel-content">
-                <div class="travel-location">🇰🇷 한국, 제주도</div>
-                <h2 class="travel-title">제주 올레길 10코스 완주기</h2>
-                <time class="travel-date">2024년 9월</time>
-                <p class="travel-excerpt">
-                  화순 금모래 해변부터 모슬포까지 이어지는 10코스. 
-                  해안 절벽을 따라 걷는 내내 바다가 주는 위로가 있었다.
-                </p>
-              </div>
-            </a>
-          </article>
-
-          <!-- 예시 여행 3 -->
-          <article class="travel-card">
-            <a href="#">
-              <div class="travel-image">🏙️</div>
-              <div class="travel-content">
-                <div class="travel-location">🇹🇭 태국, 방콕</div>
-                <h2 class="travel-title">방콕 디지털 노마드 한 달 살기</h2>
-                <time class="travel-date">2024년 7월</time>
-                <p class="travel-excerpt">
-                  낮에는 카페에서 코딩하고 저녁에는 야시장을 탐방하는 생활. 
-                  치앙마이도 좋지만 방콕의 역동적인 에너지도 매력적이다.
-                </p>
-              </div>
-            </a>
-          </article>
-
-          <!-- 예시 여행 4 -->
-          <article class="travel-card">
-            <a href="#">
-              <div class="travel-image">🌃</div>
-              <div class="travel-content">
-                <div class="travel-location">🇰🇷 한국, 부산</div>
-                <h2 class="travel-title">부산 감천문화마을 스케치</h2>
-                <time class="travel-date">2024년 6월</time>
-                <p class="travel-excerpt">
-                  한국의 마추픽추라 불리는 감천문화마을. 
-                  알록달록한 집들이 산비탈을 따라 이어지는 풍경이 인상적이었다.
-                </p>
-              </div>
-            </a>
-          </article>
+        <!-- 여행 그리드 (동적 로딩) -->
+        <div class="travel-grid" id="posts-container">
+          <!-- Firebase에서 동적으로 로드됩니다 -->
         </div>
 
         <!-- 더보기 버튼 (나중에 추가) -->
@@ -209,5 +153,7 @@
   <!-- JavaScript -->
   <script src="../assets/js/common.js"></script>
   <script src="../assets/js/navigation.js"></script>
+  <script type="module" src="../assets/js/auth.js"></script>
+  <script type="module" src="../assets/js/posts-loader.js"></script>
 </body>
 </html>

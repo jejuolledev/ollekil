@@ -141,6 +141,12 @@
             <li><a href="../about/">About</a></li>
           </ul>
         </nav>
+        
+        <div class="auth-section">
+          <span id="user-info"></span>
+          <button id="auth-button">로그인</button>
+          <a href="../admin/" class="btn btn-ghost admin-only">글쓰기</a>
+        </div>
       </div>
     </header>
 
@@ -155,130 +161,9 @@
           </p>
         </div>
 
-        <!-- 프로젝트 리스트 -->
-        <div class="projects-list">
-          <!-- 프로젝트 1 -->
-          <article class="project-card">
-            <div class="project-header">
-              <div class="project-icon">🔮</div>
-              <div class="project-info">
-                <h2 class="project-title">오늘의 운세</h2>
-                <span class="project-status status-active">운영 중</span>
-              </div>
-            </div>
-            <p class="project-description">
-              매일 아침 띄워주는 운세 앱. SwiftUI로 만든 심플한 iOS 앱으로, 
-              AdMob 광고를 통해 수익화 중입니다. 사용자 피드백을 반영해 
-              지속적으로 업데이트하고 있습니다.
-            </p>
-            <div class="project-tech">
-              <span class="tech-badge">SwiftUI</span>
-              <span class="tech-badge">Firebase</span>
-              <span class="tech-badge">AdMob</span>
-              <span class="tech-badge">StoreKit</span>
-            </div>
-            <div class="project-links">
-              <a href="#" class="project-link">
-                <span>🍎</span>
-                App Store
-              </a>
-              <a href="#" class="project-link">
-                <span>📊</span>
-                운영 후기 보기
-              </a>
-            </div>
-          </article>
-
-          <!-- 프로젝트 2 -->
-          <article class="project-card">
-            <div class="project-header">
-              <div class="project-icon">🧠</div>
-              <div class="project-info">
-                <h2 class="project-title">MBTI 궁합 테스트</h2>
-                <span class="project-status status-active">운영 중</span>
-              </div>
-            </div>
-            <p class="project-description">
-              MBTI 기반 궁합 테스트 웹 서비스. 재미 요소를 더한 심리 테스트로 
-              많은 사용자가 방문하고 있습니다. Next.js와 Tailwind CSS로 구현했으며, 
-              Vercel에 배포하여 운영 중입니다.
-            </p>
-            <div class="project-tech">
-              <span class="tech-badge">Next.js</span>
-              <span class="tech-badge">React</span>
-              <span class="tech-badge">Tailwind CSS</span>
-              <span class="tech-badge">Vercel</span>
-            </div>
-            <div class="project-links">
-              <a href="#" class="project-link">
-                <span>🌐</span>
-                서비스 보기
-              </a>
-              <a href="#" class="project-link">
-                <span>💡</span>
-                개발 과정 보기
-              </a>
-            </div>
-          </article>
-
-          <!-- 프로젝트 3 -->
-          <article class="project-card">
-            <div class="project-header">
-              <div class="project-icon">🌱</div>
-              <div class="project-info">
-                <h2 class="project-title">올레길 디지털 가든</h2>
-                <span class="project-status status-active">운영 중</span>
-              </div>
-            </div>
-            <p class="project-description">
-              바로 이 사이트입니다! 순수 HTML/CSS/JS로 만든 개인 블로그이자 
-              디지털 가든. 생각이 자라나는 과정을 기록하고 공유하는 공간입니다.
-              정적 호스팅으로 가볍게 운영하고 있습니다.
-            </p>
-            <div class="project-tech">
-              <span class="tech-badge">HTML</span>
-              <span class="tech-badge">CSS</span>
-              <span class="tech-badge">JavaScript</span>
-              <span class="tech-badge">Static Hosting</span>
-            </div>
-            <div class="project-links">
-              <a href="../" class="project-link">
-                <span>🏡</span>
-                홈으로 가기
-              </a>
-              <a href="../about/" class="project-link">
-                <span>ℹ️</span>
-                사이트 소개
-              </a>
-            </div>
-          </article>
-
-          <!-- 프로젝트 4 (계획 중) -->
-          <article class="project-card">
-            <div class="project-header">
-              <div class="project-icon">📚</div>
-              <div class="project-info">
-                <h2 class="project-title">개발자 북마크 큐레이션</h2>
-                <span class="project-status status-planning">기획 중</span>
-              </div>
-            </div>
-            <p class="project-description">
-              개발하면서 유용하게 본 글, 도구, 라이브러리를 카테고리별로 정리하는 서비스. 
-              개인적으로 쓰다가 다른 개발자들에게도 도움이 될 것 같아 
-              공개 서비스로 만들 계획입니다.
-            </p>
-            <div class="project-tech">
-              <span class="tech-badge">Next.js</span>
-              <span class="tech-badge">Supabase</span>
-              <span class="tech-badge">TypeScript</span>
-            </div>
-            <div class="project-links">
-              <a href="#" class="project-link">
-                <span>📝</span>
-                기획안 보기
-              </a>
-            </div>
-          </article>
+        <!-- 프로젝트 리스트 (동적 로딩) -->
+        <div class="projects-list" id="posts-container">
+          <!-- Firebase에서 동적으로 로드됩니다 -->
         </div>
       </div>
     </main>
@@ -300,5 +185,7 @@
   <!-- JavaScript -->
   <script src="../assets/js/common.js"></script>
   <script src="../assets/js/navigation.js"></script>
+  <script type="module" src="../assets/js/auth.js"></script>
+  <script type="module" src="../assets/js/posts-loader.js"></script>
 </body>
 </html>

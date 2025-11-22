@@ -83,6 +83,24 @@ async function loadPosts() {
 
 // 포스트 렌더링
 function renderPost(post) {
+  const path = window.location.pathname;
+  let category = 'log';
+  if (path.includes('/tech/')) category = 'tech';
+  else if (path.includes('/travel/')) category = 'travel';
+  else if (path.includes('/projects/')) category = 'projects';
+  
+  // 카테고리별 렌더링
+  if (category === 'travel') {
+    return renderTravelPost(post);
+  } else if (category === 'projects') {
+    return renderProjectPost(post);
+  } else {
+    return renderDefaultPost(post);
+  }
+}
+
+// 기본 포스트 렌더링 (Log, Tech)
+function renderDefaultPost(post) {
   const date = new Date(post.createdAt).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: '2-digit',
@@ -108,6 +126,75 @@ function renderPost(post) {
       </h2>
       <p class="post-excerpt">${post.excerpt || post.content.substring(0, 150) + '...'}</p>
       <div class="post-tags">${tags}</div>
+      ${adminControls}
+    </article>
+  `;
+}
+
+// Travel 포스트 렌더링
+function renderTravelPost(post) {
+  const date = new Date(post.createdAt).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long'
+  });
+  
+  const adminControls = isAdmin ? `
+    <div class="admin-controls" style="margin-top: var(--spacing-md);">
+      <button class="btn-edit" onclick="editPost('${post.id}')">수정</button>
+      <button class="btn-delete" onclick="deletePost('${post.id}')">삭제</button>
+    </div>
+  ` : '';
+  
+  return `
+    <article class="travel-card" data-id="${post.id}">
+      <a href="#">
+        <div class="travel-image">${post.emoji || '✈️'}</div>
+        <div class="travel-content">
+          <div class="travel-location">${post.location || ''}</div>
+          <h2 class="travel-title">${post.title}</h2>
+          <time class="travel-date">${date}</time>
+          <p class="travel-excerpt">${post.excerpt || post.content.substring(0, 150) + '...'}</p>
+        </div>
+      </a>
+      ${adminControls}
+    </article>
+  `;
+}
+
+// Projects 포스트 렌더링
+function renderProjectPost(post) {
+  const tags = (post.tags || []).map(tag => 
+    `<span class="tech-badge">${tag}</span>`
+  ).join('');
+  
+  const links = (post.links || []).map(link => 
+    `<a href="${link.url}" class="project-link">
+      <span>${link.emoji || '🔗'}</span>
+      ${link.label}
+    </a>`
+  ).join('');
+  
+  const adminControls = isAdmin ? `
+    <div class="admin-controls" style="margin-top: var(--spacing-md);">
+      <button class="btn-edit" onclick="editPost('${post.id}')">수정</button>
+      <button class="btn-delete" onclick="deletePost('${post.id}')">삭제</button>
+    </div>
+  ` : '';
+  
+  return `
+    <article class="project-card" data-id="${post.id}">
+      <div class="project-header">
+        <div class="project-icon">${post.emoji || '🚀'}</div>
+        <div class="project-info">
+          <h2 class="project-title">${post.title}</h2>
+          <span class="project-status ${post.status === 'active' ? 'status-active' : 'status-planning'}">
+            ${post.status === 'active' ? '운영 중' : '기획 중'}
+          </span>
+        </div>
+      </div>
+      <p class="project-description">${post.content}</p>
+      <div class="project-tech">${tags}</div>
+      <div class="project-links">${links}</div>
       ${adminControls}
     </article>
   `;
