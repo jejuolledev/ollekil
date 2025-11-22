@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log | 올레길의 디지털 가든</title>
+  <meta name="description" content="일상의 생각과 메모를 기록하는 공간">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/common.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin 
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+</head>
+<body>
+  <div class="site-wrapper">
+    <!-- 헤더 & 네비게이션 -->
+    <header class="site-header">
+      <div class="container header-container">
+        <a href="/" class="site-logo">올레길</a>
+        
+        <nav class="site-nav">
+          <ul>
+            <li><a href="/log/">Log</a></li>
+            <li><a href="/tech/">Tech</a></li>
+            <li><a href="/travel/">Travel</a></li>
+            <li><a href="/projects/">Projects</a></li>
+            <li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+        
+        <div class="auth-section">
+          <span id="user-info"></span>
+          <button id="auth-button">로그인</button>
+          <a href="/admin/" class="btn btn-ghost admin-only">글쓰기</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="site-content">
+      <div class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+          <h1 class="page-title">Log 📝</h1>
+          <p class="page-description">
+            일상의 짧은 생각, 개발하며 느낀 점, 배운 것들을 메모처럼 기록합니다.
+          </p>
+        </div>
+
+        <!-- 포스트 리스트 (동적 로딩) -->
+        <div class="posts-list" id="posts-container">
+          <!-- Firebase에서 동적으로 로드됩니다 -->
+        </div>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="https://github.com/ollekil" target="_blank">GitHub</a>
+            <a href="mailto:your@email.com">Email</a>
+          </div>
+          <p>&copy; <span class="current-year">2024</span> 올레길. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/navigation.js"></script>
+  <script type="module" src="/assets/js/auth.js"></script>
+  <script type="module" src="/assets/js/posts-loader.js"></script>
+</body>
+</html>

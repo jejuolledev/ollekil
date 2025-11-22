@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | 올레길의 디지털 가든</title>
+  <meta name="description" content="진행 중인 사이드 프로젝트 소개">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/common.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin 
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  
+  <style>
+    /* Projects 페이지 전용 스타일 */
+    .project-card {
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+      transition: all var(--transition-base);
+    }
+    
+    .project-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    
+    .project-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+      gap: var(--spacing-md);
+    }
+    
+    .project-icon {
+      font-size: var(--font-size-3xl);
+      flex-shrink: 0;
+    }
+    
+    .project-info {
+      flex: 1;
+    }
+    
+    .project-status {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      border-radius: var(--border-radius-sm);
+      flex-shrink: 0;
+    }
+    
+    .status-active {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--color-secondary);
+    }
+    
+    .status-planning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--color-accent);
+    }
+    
+    .project-title {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-text-primary);
+    }
+    
+    .project-description {
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .project-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .tech-badge {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: var(--font-size-xs);
+      background: var(--color-bg-tertiary);
+      color: var(--color-text-secondary);
+      border-radius: var(--border-radius-sm);
+      font-family: var(--font-mono);
+    }
+    
+    .project-links {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-bg-tertiary);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--color-text-primary);
+      transition: all var(--transition-fast);
+    }
+    
+    .project-link:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="site-wrapper">
+    <!-- 헤더 & 네비게이션 -->
+    <header class="site-header">
+      <div class="container header-container">
+        <a href="/" class="site-logo">올레길</a>
+        
+        <nav class="site-nav">
+          <ul>
+            <li><a href="/log/">Log</a></li>
+            <li><a href="/tech/">Tech</a></li>
+            <li><a href="/travel/">Travel</a></li>
+            <li><a href="/projects/">Projects</a></li>
+            <li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="site-content">
+      <div class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+          <h1 class="page-title">Projects 🚀</h1>
+          <p class="page-description">
+            진행 중인 사이드 프로젝트와 완료된 프로젝트를 소개합니다.
+          </p>
+        </div>
+
+        <!-- 프로젝트 리스트 -->
+        <div class="projects-list">
+          <!-- 프로젝트 1 -->
+          <article class="project-card">
+            <div class="project-header">
+              <div class="project-icon">🔮</div>
+              <div class="project-info">
+                <h2 class="project-title">오늘의 운세</h2>
+                <span class="project-status status-active">운영 중</span>
+              </div>
+            </div>
+            <p class="project-description">
+              매일 아침 띄워주는 운세 앱. SwiftUI로 만든 심플한 iOS 앱으로, 
+              AdMob 광고를 통해 수익화 중입니다. 사용자 피드백을 반영해 
+              지속적으로 업데이트하고 있습니다.
+            </p>
+            <div class="project-tech">
+              <span class="tech-badge">SwiftUI</span>
+              <span class="tech-badge">Firebase</span>
+              <span class="tech-badge">AdMob</span>
+              <span class="tech-badge">StoreKit</span>
+            </div>
+            <div class="project-links">
+              <a href="#" class="project-link">
+                <span>🍎</span>
+                App Store
+              </a>
+              <a href="#" class="project-link">
+                <span>📊</span>
+                운영 후기 보기
+              </a>
+            </div>
+          </article>
+
+          <!-- 프로젝트 2 -->
+          <article class="project-card">
+            <div class="project-header">
+              <div class="project-icon">🧠</div>
+              <div class="project-info">
+                <h2 class="project-title">MBTI 궁합 테스트</h2>
+                <span class="project-status status-active">운영 중</span>
+              </div>
+            </div>
+            <p class="project-description">
+              MBTI 기반 궁합 테스트 웹 서비스. 재미 요소를 더한 심리 테스트로 
+              많은 사용자가 방문하고 있습니다. Next.js와 Tailwind CSS로 구현했으며, 
+              Vercel에 배포하여 운영 중입니다.
+            </p>
+            <div class="project-tech">
+              <span class="tech-badge">Next.js</span>
+              <span class="tech-badge">React</span>
+              <span class="tech-badge">Tailwind CSS</span>
+              <span class="tech-badge">Vercel</span>
+            </div>
+            <div class="project-links">
+              <a href="#" class="project-link">
+                <span>🌐</span>
+                서비스 보기
+              </a>
+              <a href="#" class="project-link">
+                <span>💡</span>
+                개발 과정 보기
+              </a>
+            </div>
+          </article>
+
+          <!-- 프로젝트 3 -->
+          <article class="project-card">
+            <div class="project-header">
+              <div class="project-icon">🌱</div>
+              <div class="project-info">
+                <h2 class="project-title">올레길 디지털 가든</h2>
+                <span class="project-status status-active">운영 중</span>
+              </div>
+            </div>
+            <p class="project-description">
+              바로 이 사이트입니다! 순수 HTML/CSS/JS로 만든 개인 블로그이자 
+              디지털 가든. 생각이 자라나는 과정을 기록하고 공유하는 공간입니다.
+              정적 호스팅으로 가볍게 운영하고 있습니다.
+            </p>
+            <div class="project-tech">
+              <span class="tech-badge">HTML</span>
+              <span class="tech-badge">CSS</span>
+              <span class="tech-badge">JavaScript</span>
+              <span class="tech-badge">Static Hosting</span>
+            </div>
+            <div class="project-links">
+              <a href="/" class="project-link">
+                <span>🏡</span>
+                홈으로 가기
+              </a>
+              <a href="/about/" class="project-link">
+                <span>ℹ️</span>
+                사이트 소개
+              </a>
+            </div>
+          </article>
+
+          <!-- 프로젝트 4 (계획 중) -->
+          <article class="project-card">
+            <div class="project-header">
+              <div class="project-icon">📚</div>
+              <div class="project-info">
+                <h2 class="project-title">개발자 북마크 큐레이션</h2>
+                <span class="project-status status-planning">기획 중</span>
+              </div>
+            </div>
+            <p class="project-description">
+              개발하면서 유용하게 본 글, 도구, 라이브러리를 카테고리별로 정리하는 서비스. 
+              개인적으로 쓰다가 다른 개발자들에게도 도움이 될 것 같아 
+              공개 서비스로 만들 계획입니다.
+            </p>
+            <div class="project-tech">
+              <span class="tech-badge">Next.js</span>
+              <span class="tech-badge">Supabase</span>
+              <span class="tech-badge">TypeScript</span>
+            </div>
+            <div class="project-links">
+              <a href="#" class="project-link">
+                <span>📝</span>
+                기획안 보기
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="https://github.com/ollekil" target="_blank">GitHub</a>
+            <a href="mailto:your@email.com">Email</a>
+          </div>
+          <p>&copy; <span class="current-year">2024</span> 올레길. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/navigation.js"></script>
+</body>
+</html>

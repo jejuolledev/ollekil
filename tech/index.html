@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech | 올레길의 디지털 가든</title>
+  <meta name="description" content="iOS, Web, 인프라 등 기술 관련 깊이 있는 내용">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/common.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin 
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+</head>
+<body>
+  <div class="site-wrapper">
+    <!-- 헤더 & 네비게이션 -->
+    <header class="site-header">
+      <div class="container header-container">
+        <a href="/" class="site-logo">올레길</a>
+        
+        <nav class="site-nav">
+          <ul>
+            <li><a href="/log/">Log</a></li>
+            <li><a href="/tech/">Tech</a></li>
+            <li><a href="/travel/">Travel</a></li>
+            <li><a href="/projects/">Projects</a></li>
+            <li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="site-content">
+      <div class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+          <h1 class="page-title">Tech 💻</h1>
+          <p class="page-description">
+            iOS, Web, 수익화, 인프라 등 기술 관련 깊이 있는 내용을 다룹니다.
+          </p>
+        </div>
+
+        <!-- 카테고리 필터 (나중에 JS로 동작) -->
+        <div class="category-filter mb-xl">
+          <button class="btn btn-ghost active">전체</button>
+          <button class="btn btn-ghost">iOS</button>
+          <button class="btn btn-ghost">Web</button>
+          <button class="btn btn-ghost">인프라</button>
+          <button class="btn btn-ghost">수익화</button>
+        </div>
+
+        <!-- 포스트 리스트 -->
+        <div class="posts-list" id="posts-container">
+          <!-- 예시 포스트 1 -->
+          <article class="post-card">
+            <time class="post-date">2024.11.21</time>
+            <h2 class="post-title">
+              <a href="#">SwiftUI의 @Observable 매크로 깊게 파해치기</a>
+            </h2>
+            <p class="post-excerpt">
+              iOS 17부터 도입된 @Observable 매크로는 기존의 ObservableObject를 대체합니다. 
+              내부 동작 원리를 살펴보고, 실제 프로젝트에 적용하며 느낀 장단점을 정리했습니다.
+            </p>
+            <div class="post-tags">
+              <span class="tag">iOS</span>
+              <span class="tag">SwiftUI</span>
+              <span class="tag">Architecture</span>
+            </div>
+          </article>
+
+          <!-- 예시 포스트 2 -->
+          <article class="post-card">
+            <time class="post-date">2024.11.18</time>
+            <h2 class="post-title">
+              <a href="#">정적 사이트 호스팅 비교: Vercel vs Netlify vs Cloudflare Pages</a>
+            </h2>
+            <p class="post-excerpt">
+              개인 프로젝트를 배포하기 위해 주요 정적 호스팅 서비스를 비교해봤습니다. 
+              성능, 가격, DX(Developer Experience) 측면에서 각각의 장단점을 분석합니다.
+            </p>
+            <div class="post-tags">
+              <span class="tag">Web</span>
+              <span class="tag">인프라</span>
+              <span class="tag">DevOps</span>
+            </div>
+          </article>
+
+          <!-- 예시 포스트 3 -->
+          <article class="post-card">
+            <time class="post-date">2024.11.15</time>
+            <h2 class="post-title">
+              <a href="#">AdMob 광고 최적화로 월 수익 3배 올린 방법</a>
+            </h2>
+            <p class="post-excerpt">
+              iOS 앱에서 AdMob 광고를 통해 수익화를 하고 있다면 꼭 알아야 할 최적화 팁들. 
+              광고 배치, 타이밍, 사용자 경험을 해치지 않으면서 수익을 극대화하는 전략을 공유합니다.
+            </p>
+            <div class="post-tags">
+              <span class="tag">iOS</span>
+              <span class="tag">수익화</span>
+              <span class="tag">AdMob</span>
+            </div>
+          </article>
+
+          <!-- 예시 포스트 4 -->
+          <article class="post-card">
+            <time class="post-date">2024.11.10</time>
+            <h2 class="post-title">
+              <a href="#">TCA(The Composable Architecture) 실전 도입기</a>
+            </h2>
+            <p class="post-excerpt">
+              SwiftUI 프로젝트에 TCA를 도입하면서 겪은 시행착오와 해결 과정. 
+              러닝커브가 가파르지만 얻을 수 있는 것들이 명확한 아키텍처입니다.
+            </p>
+            <div class="post-tags">
+              <span class="tag">iOS</span>
+              <span class="tag">SwiftUI</span>
+              <span class="tag">TCA</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="https://github.com/ollekil" target="_blank">GitHub</a>
+            <a href="mailto:your@email.com">Email</a>
+          </div>
+          <p>&copy; <span class="current-year">2024</span> 올레길. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/navigation.js"></script>
+</body>
+</html>

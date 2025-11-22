@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel | 올레길의 디지털 가든</title>
+  <meta name="description" content="다녀온 여행지의 발자취와 사진, 감상 기록">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/common.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin 
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  
+  <style>
+    /* Travel 페이지 전용 스타일 */
+    .travel-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-xl);
+      margin-top: var(--spacing-xl);
+    }
+    
+    @media (min-width: 768px) {
+      .travel-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    .travel-card {
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: all var(--transition-base);
+    }
+    
+    .travel-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    
+    .travel-image {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: var(--color-bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-3xl);
+      color: var(--color-text-tertiary);
+    }
+    
+    .travel-content {
+      padding: var(--spacing-lg);
+    }
+    
+    .travel-location {
+      font-size: var(--font-size-sm);
+      color: var(--color-primary);
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .travel-title {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-text-primary);
+    }
+    
+    .travel-date {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+      margin-bottom: var(--spacing-md);
+      font-family: var(--font-mono);
+    }
+    
+    .travel-excerpt {
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="site-wrapper">
+    <!-- 헤더 & 네비게이션 -->
+    <header class="site-header">
+      <div class="container header-container">
+        <a href="/" class="site-logo">올레길</a>
+        
+        <nav class="site-nav">
+          <ul>
+            <li><a href="/log/">Log</a></li>
+            <li><a href="/tech/">Tech</a></li>
+            <li><a href="/travel/">Travel</a></li>
+            <li><a href="/projects/">Projects</a></li>
+            <li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="site-content">
+      <div class="container">
+        <!-- 페이지 헤더 -->
+        <div class="page-header">
+          <h1 class="page-title">Travel ✈️</h1>
+          <p class="page-description">
+            다녀온 여행지의 발자취와 사진, 여행 중 느낀 감상을 기록합니다.
+          </p>
+        </div>
+
+        <!-- 여행 그리드 -->
+        <div class="travel-grid">
+          <!-- 예시 여행 1 -->
+          <article class="travel-card">
+            <a href="#">
+              <div class="travel-image">🗾</div>
+              <div class="travel-content">
+                <div class="travel-location">🇯🇵 일본, 교토</div>
+                <h2 class="travel-title">천년의 고도, 교토에서의 3일</h2>
+                <time class="travel-date">2024년 10월</time>
+                <p class="travel-excerpt">
+                  가을의 교토는 정말 아름답다는 말이 과장이 아니었다. 
+                  특히 아라시야마의 단풍과 기온 골목의 고즈넉한 분위기가 인상적이었다.
+                </p>
+              </div>
+            </a>
+          </article>
+
+          <!-- 예시 여행 2 -->
+          <article class="travel-card">
+            <a href="#">
+              <div class="travel-image">🏔️</div>
+              <div class="travel-content">
+                <div class="travel-location">🇰🇷 한국, 제주도</div>
+                <h2 class="travel-title">제주 올레길 10코스 완주기</h2>
+                <time class="travel-date">2024년 9월</time>
+                <p class="travel-excerpt">
+                  화순 금모래 해변부터 모슬포까지 이어지는 10코스. 
+                  해안 절벽을 따라 걷는 내내 바다가 주는 위로가 있었다.
+                </p>
+              </div>
+            </a>
+          </article>
+
+          <!-- 예시 여행 3 -->
+          <article class="travel-card">
+            <a href="#">
+              <div class="travel-image">🏙️</div>
+              <div class="travel-content">
+                <div class="travel-location">🇹🇭 태국, 방콕</div>
+                <h2 class="travel-title">방콕 디지털 노마드 한 달 살기</h2>
+                <time class="travel-date">2024년 7월</time>
+                <p class="travel-excerpt">
+                  낮에는 카페에서 코딩하고 저녁에는 야시장을 탐방하는 생활. 
+                  치앙마이도 좋지만 방콕의 역동적인 에너지도 매력적이다.
+                </p>
+              </div>
+            </a>
+          </article>
+
+          <!-- 예시 여행 4 -->
+          <article class="travel-card">
+            <a href="#">
+              <div class="travel-image">🌃</div>
+              <div class="travel-content">
+                <div class="travel-location">🇰🇷 한국, 부산</div>
+                <h2 class="travel-title">부산 감천문화마을 스케치</h2>
+                <time class="travel-date">2024년 6월</time>
+                <p class="travel-excerpt">
+                  한국의 마추픽추라 불리는 감천문화마을. 
+                  알록달록한 집들이 산비탈을 따라 이어지는 풍경이 인상적이었다.
+                </p>
+              </div>
+            </a>
+          </article>
+        </div>
+
+        <!-- 더보기 버튼 (나중에 추가) -->
+        <!-- <div style="text-align: center; margin-top: var(--spacing-2xl);">
+          <button class="btn btn-ghost">더 보기</button>
+        </div> -->
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="https://github.com/ollekil" target="_blank">GitHub</a>
+            <a href="mailto:your@email.com">Email</a>
+          </div>
+          <p>&copy; <span class="current-year">2024</span> 올레길. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/navigation.js"></script>
+</body>
+</html>

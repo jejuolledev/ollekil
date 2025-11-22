@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | 올레길의 디지털 가든</title>
+  <meta name="description" content="올레길과 이 사이트에 대한 소개">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/common.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/pages.css">
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin 
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  
+  <style>
+    /* About 페이지 전용 스타일 */
+    .about-intro {
+      text-align: center;
+      padding: var(--spacing-2xl) 0;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--spacing-2xl);
+    }
+    
+    .about-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-4xl);
+      margin: 0 auto var(--spacing-lg);
+    }
+    
+    .about-name {
+      font-size: var(--font-size-3xl);
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .about-role {
+      font-size: var(--font-size-xl);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .about-bio {
+      max-width: var(--max-width-text);
+      margin: 0 auto;
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+    }
+    
+    .about-section {
+      margin-bottom: var(--spacing-3xl);
+    }
+    
+    .section-title {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--color-border);
+    }
+    
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: var(--spacing-lg);
+    }
+    
+    .skill-category {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-lg);
+    }
+    
+    .skill-category-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+      color: var(--color-primary);
+    }
+    
+    .skill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+    
+    .skill-item {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+    
+    .timeline {
+      position: relative;
+      padding-left: var(--spacing-xl);
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--color-border);
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-bottom: var(--spacing-xl);
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      border: 2px solid var(--color-bg-primary);
+    }
+    
+    .timeline-date {
+      font-size: var(--font-size-sm);
+      color: var(--color-primary);
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .timeline-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .timeline-description {
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+    }
+    
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      transition: all var(--transition-base);
+    }
+    
+    .contact-item:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .contact-icon {
+      font-size: var(--font-size-2xl);
+      flex-shrink: 0;
+    }
+    
+    .contact-info {
+      flex: 1;
+    }
+    
+    .contact-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-tertiary);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .contact-value {
+      font-size: var(--font-size-base);
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="site-wrapper">
+    <!-- 헤더 & 네비게이션 -->
+    <header class="site-header">
+      <div class="container header-container">
+        <a href="/" class="site-logo">올레길</a>
+        
+        <nav class="site-nav">
+          <ul>
+            <li><a href="/log/">Log</a></li>
+            <li><a href="/tech/">Tech</a></li>
+            <li><a href="/travel/">Travel</a></li>
+            <li><a href="/projects/">Projects</a></li>
+            <li><a href="/about/">About</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="site-content">
+      <div class="container">
+        <!-- 소개 -->
+        <div class="about-intro">
+          <div class="about-avatar">👨‍💻</div>
+          <h1 class="about-name">올레길</h1>
+          <p class="about-role">iOS Engineer & Digital Gardener</p>
+          <p class="about-bio">
+            iOS 개발과 웹 기술에 관심이 많은 엔지니어입니다.<br>
+            사용자에게 가치를 전달하는 제품을 만드는 것을 좋아하며,<br>
+            배운 것을 기록하고 공유하는 것을 즐깁니다.
+          </p>
+        </div>
+
+        <!-- 기술 스택 -->
+        <section class="about-section">
+          <h2 class="section-title">기술 스택</h2>
+          <div class="skills-grid">
+            <div class="skill-category">
+              <h3 class="skill-category-title">iOS Development</h3>
+              <div class="skill-list">
+                <span class="skill-item">Swift</span>
+                <span class="skill-item">SwiftUI</span>
+                <span class="skill-item">UIKit</span>
+                <span class="skill-item">Combine</span>
+                <span class="skill-item">TCA</span>
+                <span class="skill-item">Core Data</span>
+                <span class="skill-item">Firebase</span>
+                <span class="skill-item">StoreKit</span>
+              </div>
+            </div>
+            
+            <div class="skill-category">
+              <h3 class="skill-category-title">Web Development</h3>
+              <div class="skill-list">
+                <span class="skill-item">HTML/CSS</span>
+                <span class="skill-item">JavaScript</span>
+                <span class="skill-item">TypeScript</span>
+                <span class="skill-item">React</span>
+                <span class="skill-item">Next.js</span>
+                <span class="skill-item">Tailwind CSS</span>
+              </div>
+            </div>
+            
+            <div class="skill-category">
+              <h3 class="skill-category-title">DevOps & Tools</h3>
+              <div class="skill-list">
+                <span class="skill-item">Git</span>
+                <span class="skill-item">GitHub Actions</span>
+                <span class="skill-item">Vercel</span>
+                <span class="skill-item">Supabase</span>
+                <span class="skill-item">Xcode</span>
+                <span class="skill-item">VS Code</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 경력 타임라인 -->
+        <section class="about-section">
+          <h2 class="section-title">경력</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-date">2023 - 현재</div>
+              <h3 class="timeline-title">iOS 개발자</h3>
+              <p class="timeline-description">
+                SwiftUI를 활용한 모던 iOS 앱 개발에 집중하고 있습니다. 
+                사용자 경험 개선과 코드 품질 향상을 위해 꾸준히 학습하고 있습니다.
+              </p>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">2022 - 2023</div>
+              <h3 class="timeline-title">사이드 프로젝트 런칭</h3>
+              <p class="timeline-description">
+                개인 앱 서비스를 기획, 개발, 운영하며 수익화 경험을 쌓았습니다. 
+                AdMob을 통한 광고 수익화와 사용자 피드백 기반 개선 작업을 진행했습니다.
+              </p>
+            </div>
+            
+            <div class="timeline-item">
+              <div class="timeline-date">2021</div>
+              <h3 class="timeline-title">iOS 개발 시작</h3>
+              <p class="timeline-description">
+                Swift와 iOS 개발에 입문했습니다. UIKit부터 시작해 점차 
+                SwiftUI와 모던 아키텍처를 학습하며 성장해왔습니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 관심사 -->
+        <section class="about-section">
+          <h2 class="section-title">관심사</h2>
+          <div class="grid grid-2">
+            <div class="card">
+              <h3 class="card-title">📱 모바일 개발</h3>
+              <p class="card-excerpt">
+                SwiftUI의 선언형 UI와 Combine을 활용한 반응형 프로그래밍에 관심이 많습니다. 
+                사용자 경험을 개선하는 인터랙션 디자인을 고민합니다.
+              </p>
+            </div>
+            
+            <div class="card">
+              <h3 class="card-title">💰 앱 수익화</h3>
+              <p class="card-excerpt">
+                AdMob, IAP 등 다양한 수익화 전략을 연구하고 실험합니다. 
+                사용자 경험을 해치지 않으면서 지속 가능한 수익 모델을 찾고 있습니다.
+              </p>
+            </div>
+            
+            <div class="card">
+              <h3 class="card-title">🌐 웹 기술</h3>
+              <p class="card-excerpt">
+                React, Next.js를 활용한 웹 서비스 개발에도 관심이 있습니다. 
+                정적 사이트 생성과 서버리스 아키텍처를 실험하고 있습니다.
+              </p>
+            </div>
+            
+            <div class="card">
+              <h3 class="card-title">✈️ 여행</h3>
+              <p class="card-excerpt">
+                새로운 곳을 여행하며 영감을 얻고, 다양한 문화를 경험하는 것을 좋아합니다. 
+                여행지에서 로컬 개발자 커뮤니티를 방문하기도 합니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 연락처 -->
+        <section class="about-section">
+          <h2 class="section-title">연락처</h2>
+          <div class="contact-grid">
+            <a href="mailto:your@email.com" class="contact-item">
+              <div class="contact-icon">📧</div>
+              <div class="contact-info">
+                <div class="contact-label">Email</div>
+                <div class="contact-value">your@email.com</div>
+              </div>
+            </a>
+            
+            <a href="https://github.com/ollekil" target="_blank" class="contact-item">
+              <div class="contact-icon">💻</div>
+              <div class="contact-info">
+                <div class="contact-label">GitHub</div>
+                <div class="contact-value">@ollekil</div>
+              </div>
+            </a>
+            
+            <a href="#" class="contact-item">
+              <div class="contact-icon">🐦</div>
+              <div class="contact-info">
+                <div class="contact-label">Twitter</div>
+                <div class="contact-value">@ollekil</div>
+              </div>
+            </a>
+            
+            <a href="#" class="contact-item">
+              <div class="contact-icon">📝</div>
+              <div class="contact-info">
+                <div class="contact-label">Blog</div>
+                <div class="contact-value">ollekil.moahub.co.kr</div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- 사이트 소개 -->
+        <section class="about-section">
+          <h2 class="section-title">이 사이트에 대하여</h2>
+          <div class="card">
+            <h3 class="card-title">디지털 가든이란?</h3>
+            <p class="card-excerpt" style="margin-bottom: var(--spacing-md);">
+              디지털 가든(Digital Garden)은 블로그보다 덜 형식적이고, 
+              노션보다 더 공개적인 지식 관리 공간입니다. 
+              완벽하게 정리된 글만 발행하기보다는, 생각이 자라나는 과정 자체를 
+              기록하고 공유하는 것을 지향합니다.
+            </p>
+            <p class="card-excerpt">
+              이 사이트는 순수 HTML/CSS/JavaScript로 만들어졌으며, 
+              정적 호스팅으로 가볍게 운영됩니다. 
+              일상의 메모(Log), 기술 글(Tech), 여행 기록(Travel), 
+              프로젝트 소개(Projects) 등을 담고 있습니다.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="https://github.com/ollekil" target="_blank">GitHub</a>
+            <a href="mailto:your@email.com">Email</a>
+          </div>
+          <p>&copy; <span class="current-year">2024</span> 올레길. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/assets/js/common.js"></script>
+  <script src="/assets/js/navigation.js"></script>
+</body>
+</html>
