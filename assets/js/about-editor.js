@@ -100,6 +100,28 @@ function getDefaultAboutData() {
         description: 'Swift와 iOS 개발에 입문했습니다. UIKit부터 시작해 점차 SwiftUI와 모던 아키텍처를 학습하며 성장해왔습니다.'
       }
     ],
+    interests: [
+      {
+        icon: '📱',
+        title: '모바일 개발',
+        description: 'SwiftUI의 선언형 UI와 Combine을 활용한 반응형 프로그래밍에 관심이 많습니다. 사용자 경험을 개선하는 인터랙션 디자인을 고민합니다.'
+      },
+      {
+        icon: '💰',
+        title: '앱 수익화',
+        description: 'AdMob, IAP 등 다양한 수익화 전략을 연구하고 실험합니다. 사용자 경험을 해치지 않으면서 지속 가능한 수익 모델을 찾고 있습니다.'
+      },
+      {
+        icon: '🌐',
+        title: '웹 기술',
+        description: 'React, Next.js를 활용한 웹 서비스 개발에도 관심이 있습니다. 정적 사이트 생성과 서버리스 아키텍처를 실험하고 있습니다.'
+      },
+      {
+        icon: '✈️',
+        title: '여행',
+        description: '새로운 곳을 여행하며 영감을 얻고, 다양한 문화를 경험하는 것을 좋아합니다. 여행지에서 로컬 개발자 커뮤니티를 방문하기도 합니다.'
+      }
+    ],
     contacts: [
       {
         icon: '📧',
@@ -113,7 +135,14 @@ function getDefaultAboutData() {
         value: '@ollekil',
         url: 'https://github.com/ollekil'
       }
-    ]
+    ],
+    siteInfo: {
+      title: '디지털 가든이란?',
+      paragraphs: [
+        '디지털 가든(Digital Garden)은 블로그보다 덜 형식적이고, 노션보다 더 공개적인 지식 관리 공간입니다. 완벽하게 정리된 글만 발행하기보다는, 생각이 자라나는 과정 자체를 기록하고 공유하는 것을 지향합니다.',
+        '이 사이트는 순수 HTML/CSS/JavaScript로 만들어졌으며, 정적 호스팅으로 가볍게 운영됩니다. 일상의 메모(Log), 기술 글(Tech), 여행 기록(Travel), 프로젝트 소개(Projects) 등을 담고 있습니다.'
+      ]
+    }
   };
 }
 
@@ -130,8 +159,14 @@ function renderAboutData() {
   // 경력 렌더링
   renderExperiences();
   
+  // 관심사 렌더링
+  renderInterests();
+  
   // 연락처 렌더링
   renderContacts();
+  
+  // 사이트 소개 렌더링
+  renderSiteInfo();
 }
 
 // 프로필 렌더링
@@ -191,6 +226,32 @@ function renderContacts() {
   `).join('');
 }
 
+// 관심사 렌더링
+function renderInterests() {
+  const interestsGrid = document.querySelector('.interests-grid');
+  if (!interestsGrid) return;
+  
+  interestsGrid.innerHTML = aboutData.interests.map((interest, index) => `
+    <div class="card" data-interest-index="${index}">
+      <h3 class="card-title">${interest.icon} ${interest.title}</h3>
+      <p class="card-excerpt">${interest.description}</p>
+    </div>
+  `).join('');
+}
+
+// 사이트 소개 렌더링
+function renderSiteInfo() {
+  const siteInfoCard = document.querySelector('.site-info-card');
+  if (!siteInfoCard) return;
+  
+  siteInfoCard.innerHTML = `
+    <h3 class="card-title">${aboutData.siteInfo.title}</h3>
+    ${aboutData.siteInfo.paragraphs.map((p, i) => `
+      <p class="card-excerpt"${i > 0 ? ' style="margin-top: var(--spacing-md);"' : ''}>${p}</p>
+    `).join('')}
+  `;
+}
+
 // 관리자 편집 버튼 표시
 function showEditButtons() {
   console.log('showEditButtons 실행');
@@ -227,7 +288,7 @@ function showEditButtons() {
     console.log('경력 편집 버튼 추가됨');
   }
   
-  // 연락처 편집 버튼 (관심사 다음이므로 index 3)
+  // 연락처 편집 버튼 (index 3)
   const contactSection = allSections[3]?.querySelector('.section-title');
   console.log('contactSection:', contactSection);
   if (contactSection) {
@@ -235,6 +296,26 @@ function showEditButtons() {
     editBtn.style.float = 'right';
     contactSection.appendChild(editBtn);
     console.log('연락처 편집 버튼 추가됨');
+  }
+  
+  // 관심사 편집 버튼 (index 2)
+  const interestsSection = allSections[2]?.querySelector('.section-title');
+  console.log('interestsSection:', interestsSection);
+  if (interestsSection) {
+    const editBtn = createEditButton('편집', () => editInterests());
+    editBtn.style.float = 'right';
+    interestsSection.appendChild(editBtn);
+    console.log('관심사 편집 버튼 추가됨');
+  }
+  
+  // 사이트 소개 편집 버튼 (index 4)
+  const siteInfoSection = allSections[4]?.querySelector('.section-title');
+  console.log('siteInfoSection:', siteInfoSection);
+  if (siteInfoSection) {
+    const editBtn = createEditButton('편집', () => editSiteInfo());
+    editBtn.style.float = 'right';
+    siteInfoSection.appendChild(editBtn);
+    console.log('사이트 소개 편집 버튼 추가됨');
   }
   
   console.log('모든 편집 버튼 추가 완료');
@@ -427,6 +508,95 @@ function editContacts() {
   document.body.appendChild(modal);
 }
 
+// 관심사 편집
+function editInterests() {
+  const modal = createModal('관심사 편집', `
+    <div id="interests-editor" style="display: flex; flex-direction: column; gap: 1rem;">
+      ${aboutData.interests.map((interest, index) => `
+        <div style="border: 1px solid var(--color-border); border-radius: 0.5rem; padding: 1rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+            <input type="text" value="${interest.icon}" 
+                   onchange="updateInterestIcon(${index}, this.value)"
+                   style="width: 60px; padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 0.375rem; font-size: 1.5rem; text-align: center;">
+            <button onclick="removeInterest(${index})" 
+                    style="padding: 0.5rem 1rem; background: #ef4444; color: white; border-radius: 0.375rem; cursor: pointer;">
+              삭제
+            </button>
+          </div>
+          <input type="text" value="${interest.title}" 
+                 onchange="updateInterestTitle(${index}, this.value)"
+                 placeholder="제목"
+                 style="width: 100%; padding: 0.5rem; margin-bottom: 0.75rem; border: 1px solid var(--color-border); border-radius: 0.375rem; font-weight: 600;">
+          <textarea rows="3" 
+                    onchange="updateInterestDescription(${index}, this.value)"
+                    placeholder="설명"
+                    style="width: 100%; padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 0.375rem; resize: vertical;">${interest.description}</textarea>
+        </div>
+      `).join('')}
+    </div>
+    <button onclick="addInterest()" 
+            style="width: 100%; padding: 0.75rem; margin-top: 1rem; background: var(--color-secondary); color: white; border-radius: 0.375rem; cursor: pointer;">
+      + 관심사 추가
+    </button>
+  `, async () => {
+    await saveAboutData();
+    renderInterests();
+    closeModal();
+  });
+  
+  document.body.appendChild(modal);
+}
+
+// 사이트 소개 편집
+function editSiteInfo() {
+  const modal = createModal('사이트 소개 편집', `
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">제목</label>
+        <input type="text" id="edit-site-title" value="${aboutData.siteInfo.title}" 
+               style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: 0.375rem; font-weight: 600;">
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">문단들</label>
+        ${aboutData.siteInfo.paragraphs.map((p, i) => `
+          <div style="margin-bottom: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.875rem; color: var(--color-text-secondary);">문단 ${i + 1}</span>
+              ${aboutData.siteInfo.paragraphs.length > 1 ? `
+                <button onclick="removeSiteParagraph(${i})" 
+                        style="padding: 0.25rem 0.75rem; background: #ef4444; color: white; border-radius: 0.375rem; cursor: pointer; font-size: 0.75rem;">
+                  삭제
+                </button>
+              ` : ''}
+            </div>
+            <textarea id="site-paragraph-${i}" rows="3" 
+                      style="width: 100%; padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 0.375rem; resize: vertical;">${p}</textarea>
+          </div>
+        `).join('')}
+        <button onclick="addSiteParagraph()" 
+                style="width: 100%; padding: 0.5rem; background: var(--color-bg-tertiary); color: var(--color-text-primary); border-radius: 0.375rem; cursor: pointer; font-size: 0.875rem;">
+          + 문단 추가
+        </button>
+      </div>
+    </div>
+  `, async () => {
+    // 제목 업데이트
+    aboutData.siteInfo.title = document.getElementById('edit-site-title').value;
+    
+    // 문단들 업데이트
+    aboutData.siteInfo.paragraphs = aboutData.siteInfo.paragraphs.map((_, i) => {
+      const textarea = document.getElementById(`site-paragraph-${i}`);
+      return textarea ? textarea.value : '';
+    }).filter(p => p.trim());
+    
+    await saveAboutData();
+    renderSiteInfo();
+    closeModal();
+  });
+  
+  document.body.appendChild(modal);
+}
+
 // 모달 생성
 function createModal(title, content, onSave) {
   const modal = document.createElement('div');
@@ -577,4 +747,46 @@ window.addContact = function() {
     url: '#'
   });
   editContacts();
+};
+
+// 관심사 관리 함수들
+window.updateInterestIcon = function(index, value) {
+  aboutData.interests[index].icon = value;
+};
+
+window.updateInterestTitle = function(index, value) {
+  aboutData.interests[index].title = value;
+};
+
+window.updateInterestDescription = function(index, value) {
+  aboutData.interests[index].description = value;
+};
+
+window.removeInterest = function(index) {
+  if (confirm('이 관심사를 삭제하시겠습니까?')) {
+    aboutData.interests.splice(index, 1);
+    editInterests();
+  }
+};
+
+window.addInterest = function() {
+  aboutData.interests.push({
+    icon: '💡',
+    title: '새 관심사',
+    description: '설명을 입력하세요.'
+  });
+  editInterests();
+};
+
+// 사이트 소개 관리 함수들
+window.removeSiteParagraph = function(index) {
+  if (confirm('이 문단을 삭제하시겠습니까?')) {
+    aboutData.siteInfo.paragraphs.splice(index, 1);
+    editSiteInfo();
+  }
+};
+
+window.addSiteParagraph = function() {
+  aboutData.siteInfo.paragraphs.push('새 문단을 입력하세요.');
+  editSiteInfo();
 };
