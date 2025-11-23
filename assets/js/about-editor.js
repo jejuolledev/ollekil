@@ -1,3 +1,64 @@
+// HTML에서 현재 관심사 데이터 파싱
+function parseInterestsFromHTML() {
+  const interestsGrid = document.querySelector('.interests-grid');
+  if (!interestsGrid) return [];
+  
+  const cards = interestsGrid.querySelectorAll('.card');
+  const interests = [];
+  
+  cards.forEach(card => {
+    const title = card.querySelector('.card-title');
+    const excerpt = card.querySelector('.card-excerpt');
+    
+    if (title && excerpt) {
+      const titleText = title.textContent.trim();
+      // 첫 글자는 이모지, 나머지는 텍스트로 간주
+      const icon = titleText.charAt(0);
+      const titleOnly = titleText.substring(1).trim();
+      
+      interests.push({
+        icon: icon,
+        title: titleOnly,
+        description: excerpt.textContent.trim()
+      });
+    }
+  });
+  
+  console.log('파싱된 관심사:', interests);
+  return interests;
+}
+
+// HTML에서 현재 사이트 소개 데이터 파싱
+function parseSiteInfoFromHTML() {
+  const siteInfoCard = document.querySelector('.site-info-card');
+  if (!siteInfoCard) {
+    console.log('site-info-card 요소를 찾을 수 없습니다');
+    return null;
+  }
+  
+  const titleEl = siteInfoCard.querySelector('.card-title');
+  const excerpts = siteInfoCard.querySelectorAll('.card-excerpt');
+  
+  if (!titleEl) {
+    console.log('card-title 요소를 찾을 수 없습니다');
+    return null;
+  }
+  
+  const paragraphs = [];
+  excerpts.forEach(excerpt => {
+    const text = excerpt.textContent.trim();
+    if (text) paragraphs.push(text);
+  });
+  
+  const result = {
+    title: titleEl.textContent.trim(),
+    paragraphs: paragraphs.length > 0 ? paragraphs : ['설명을 입력해주세요.']
+  };
+  
+  console.log('파싱된 사이트 소개:', result);
+  return result;
+}
+
 // ============================================
 // About 페이지 편집 기능
 // ============================================
@@ -424,10 +485,21 @@ function createEditButton(text, onClick) {
 function editProfile() {
   console.log('프로필 편집 함수 호출');
   
-  if (!aboutData || !aboutData.profile) {
-    console.error('aboutData.profile이 없습니다');
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
     alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
     return;
+  }
+  
+  // profile이 없으면 기본값으로 초기화
+  if (!aboutData.profile) {
+    console.log('profile 필드가 없어 기본값으로 초기화');
+    aboutData.profile = {
+      avatar: '👨‍💻',
+      name: '올레길',
+      role: 'iOS Engineer & Digital Gardener',
+      bio: 'iOS 개발과 웹 기술에 관심이 많은 엔지니어입니다.'
+    };
   }
   
   const { profile } = aboutData;
@@ -470,10 +542,16 @@ function editProfile() {
 function editSkills() {
   console.log('기술 스택 편집 함수 호출');
   
-  if (!aboutData || !aboutData.skills) {
-    console.error('aboutData.skills가 없습니다');
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
     alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
     return;
+  }
+  
+  // skills가 없으면 기본값으로 초기화
+  if (!aboutData.skills) {
+    console.log('skills 필드가 없어 기본값으로 초기화');
+    aboutData.skills = [];
   }
 
   const modal = createModal('기술 스택 편집', `
@@ -528,10 +606,16 @@ function editSkills() {
 function editExperiences() {
   console.log('경력 편집 함수 호출');
   
-  if (!aboutData || !aboutData.experiences) {
-    console.error('aboutData.experiences가 없습니다');
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
     alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
     return;
+  }
+  
+  // experiences가 없으면 기본값으로 초기화
+  if (!aboutData.experiences) {
+    console.log('experiences 필드가 없어 기본값으로 초기화');
+    aboutData.experiences = [];
   }
 
   const modal = createModal('경력 편집', `
@@ -573,10 +657,16 @@ function editExperiences() {
 function editContacts() {
   console.log('연락처 편집 함수 호출');
   
-  if (!aboutData || !aboutData.contacts) {
-    console.error('aboutData.contacts가 없습니다');
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
     alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
     return;
+  }
+  
+  // contacts가 없으면 기본값으로 초기화
+  if (!aboutData.contacts) {
+    console.log('contacts 필드가 없어 기본값으로 초기화');
+    aboutData.contacts = [];
   }
 
   const modal = createModal('연락처 편집', `
@@ -625,10 +715,17 @@ function editInterests() {
   console.log('관심사 편집 함수 호출');
   console.log('aboutData:', aboutData);
   
-  if (!aboutData || !aboutData.interests) {
-    console.error('aboutData.interests가 없습니다');
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
     alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
     return;
+  }
+  
+  // interests가 없으면 HTML에서 파싱
+  if (!aboutData.interests || aboutData.interests.length === 0) {
+    console.log('interests 필드가 없어 HTML에서 파싱');
+    aboutData.interests = parseInterestsFromHTML();
+    console.log('파싱된 interests:', aboutData.interests);
   }
   
   const modal = createModal('관심사 편집', `
@@ -673,10 +770,25 @@ function editSiteInfo() {
   console.log('사이트 소개 편집 함수 호출');
   console.log('aboutData:', aboutData);
   
-  if (!aboutData || !aboutData.siteInfo) {
-    console.error('aboutData.siteInfo가 없습니다');
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
     alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
     return;
+  }
+  
+  // siteInfo가 없거나 비어있으면 HTML에서 파싱
+  if (!aboutData.siteInfo || !aboutData.siteInfo.paragraphs || aboutData.siteInfo.paragraphs.length === 0) {
+    console.log('siteInfo 필드가 없거나 비어있어 HTML에서 파싱');
+    const parsedSiteInfo = parseSiteInfoFromHTML();
+    if (parsedSiteInfo) {
+      aboutData.siteInfo = parsedSiteInfo;
+      console.log('파싱된 siteInfo:', aboutData.siteInfo);
+    } else {
+      aboutData.siteInfo = {
+        title: '디지털 가든이란?',
+        paragraphs: ['설명을 입력해주세요.']
+      };
+    }
   }
   
   const modal = createModal('사이트 소개 편집', `
