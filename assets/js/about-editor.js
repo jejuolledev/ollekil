@@ -20,20 +20,40 @@ let aboutData = null;
 document.addEventListener('DOMContentLoaded', () => {
   console.log('About editor 초기화 시작');
   
-  // 인증 상태 확인
-  onAuthStateChanged(auth, async (user) => {
-    console.log('인증 상태:', user ? user.email : '비로그인');
-    isAdmin = user && user.email === ADMIN_EMAIL;
-    console.log('관리자 여부:', isAdmin);
+  // Firebase 초기화 대기
+  const initFirebase = () => {
+    return new Promise((resolve) => {
+      if (auth && db) {
+        console.log('Firebase 이미 초기화됨');
+        resolve();
+      } else {
+        console.log('Firebase 초기화 대기 중...');
+        setTimeout(() => {
+          initFirebase().then(resolve);
+        }, 100);
+      }
+    });
+  };
+  
+  // Firebase 초기화 후 인증 확인
+  initFirebase().then(() => {
+    console.log('Firebase 초기화 완료, 인증 상태 확인 시작');
     
-    // About 데이터 로드
-    await loadAboutData();
-    
-    // 관리자면 편집 버튼 표시
-    if (isAdmin) {
-      console.log('편집 버튼 표시 시작');
-      showEditButtons();
-    }
+    // 인증 상태 확인
+    onAuthStateChanged(auth, async (user) => {
+      console.log('인증 상태:', user ? user.email : '비로그인');
+      isAdmin = user && user.email === ADMIN_EMAIL;
+      console.log('관리자 여부:', isAdmin);
+      
+      // About 데이터 로드
+      await loadAboutData();
+      
+      // 관리자면 편집 버튼 표시
+      if (isAdmin) {
+        console.log('편집 버튼 표시 시작');
+        showEditButtons();
+      }
+    });
   });
 });
 
@@ -41,23 +61,36 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadAboutData() {
   try {
     console.log('About 데이터 로드 시작');
+    console.log('db:', db);
+    
+    if (!db) {
+      console.error('Firebase db가 초기화되지 않았습니다');
+      return;
+    }
+    
     const docRef = doc(db, 'about', 'profile');
+    console.log('docRef 생성:', docRef);
+    
     const docSnap = await getDoc(docRef);
+    console.log('docSnap 존재 여부:', docSnap.exists());
     
     if (docSnap.exists()) {
       console.log('기존 데이터 로드 성공');
       aboutData = docSnap.data();
+      console.log('로드된 aboutData:', aboutData);
       renderAboutData();
     } else {
       console.log('초기 데이터 생성');
       // 초기 데이터 생성
       aboutData = getDefaultAboutData();
+      console.log('생성한 초기 aboutData:', aboutData);
       await setDoc(docRef, aboutData);
       console.log('초기 데이터 저장 완료');
       renderAboutData();
     }
   } catch (error) {
     console.error('About 데이터 로딩 실패:', error);
+    console.error('에러 상세:', error.message, error.stack);
   }
 }
 
@@ -149,7 +182,12 @@ function getDefaultAboutData() {
 
 // About 데이터 렌더링
 function renderAboutData() {
-  if (!aboutData) return;
+  console.log('renderAboutData 호출', aboutData);
+  
+  if (!aboutData) {
+    console.error('aboutData가 없습니다');
+    return;
+  }
   
   // 프로필 렌더링
   renderProfile();
@@ -172,16 +210,31 @@ function renderAboutData() {
 
 // 프로필 렌더링
 function renderProfile() {
+  if (!aboutData || !aboutData.profile) {
+    console.error('profile 데이터 없음');
+    return;
+  }
+  
   const { profile } = aboutData;
   
-  document.querySelector('.about-avatar').textContent = profile.avatar;
-  document.querySelector('.about-name').textContent = profile.name;
-  document.querySelector('.about-role').textContent = profile.role;
-  document.querySelector('.about-bio').innerHTML = profile.bio.replace(/\n/g, '<br>');
+  const avatar = document.querySelector('.about-avatar');
+  const name = document.querySelector('.about-name');
+  const role = document.querySelector('.about-role');
+  const bio = document.querySelector('.about-bio');
+  
+  if (avatar) avatar.textContent = profile.avatar;
+  if (name) name.textContent = profile.name;
+  if (role) role.textContent = profile.role;
+  if (bio) bio.innerHTML = profile.bio.replace(/\n/g, '<br>');
 }
 
 // 기술 스택 렌더링
 function renderSkills() {
+  if (!aboutData || !aboutData.skills) {
+    console.error('skills 데이터 없음');
+    return;
+  }
+  
   const skillsGrid = document.querySelector('.skills-grid');
   if (!skillsGrid) return;
   
@@ -199,6 +252,11 @@ function renderSkills() {
 
 // 경력 렌더링
 function renderExperiences() {
+  if (!aboutData || !aboutData.experiences) {
+    console.error('experiences 데이터 없음');
+    return;
+  }
+  
   const timeline = document.querySelector('.timeline');
   if (!timeline) return;
   
@@ -213,6 +271,11 @@ function renderExperiences() {
 
 // 연락처 렌더링
 function renderContacts() {
+  if (!aboutData || !aboutData.contacts) {
+    console.error('contacts 데이터 없음');
+    return;
+  }
+  
   const contactGrid = document.querySelector('.contact-grid');
   if (!contactGrid) return;
   
@@ -229,6 +292,11 @@ function renderContacts() {
 
 // 관심사 렌더링
 function renderInterests() {
+  if (!aboutData || !aboutData.interests) {
+    console.error('interests 데이터 없음');
+    return;
+  }
+  
   const interestsGrid = document.querySelector('.interests-grid');
   if (!interestsGrid) return;
   
@@ -242,6 +310,11 @@ function renderInterests() {
 
 // 사이트 소개 렌더링
 function renderSiteInfo() {
+  if (!aboutData || !aboutData.siteInfo || !aboutData.siteInfo.paragraphs) {
+    console.error('siteInfo 데이터 없음', aboutData);
+    return;
+  }
+  
   const siteInfoCard = document.querySelector('.site-info-card');
   if (!siteInfoCard) return;
   
@@ -256,68 +329,69 @@ function renderSiteInfo() {
 // 관리자 편집 버튼 표시
 function showEditButtons() {
   console.log('showEditButtons 실행');
+  console.log('현재 aboutData:', aboutData);
   
   // 프로필 편집 버튼
   const aboutIntro = document.querySelector('.about-intro');
   console.log('aboutIntro:', aboutIntro);
-  if (aboutIntro) {
+  if (aboutIntro && !aboutIntro.querySelector('.btn-edit-section')) {
     const editBtn = createEditButton('프로필 편집', () => editProfile());
     aboutIntro.appendChild(editBtn);
     console.log('프로필 편집 버튼 추가됨');
   }
   
-  // 기술 스택 편집 버튼
+  // 모든 about-section 찾기
   const allSections = document.querySelectorAll('.about-section');
   console.log('전체 섹션 수:', allSections.length);
   
-  const skillsSection = allSections[0]?.querySelector('.section-title');
-  console.log('skillsSection:', skillsSection);
-  if (skillsSection) {
-    const editBtn = createEditButton('편집', () => editSkills());
-    editBtn.style.float = 'right';
-    skillsSection.appendChild(editBtn);
-    console.log('기술 스택 편집 버튼 추가됨');
-  }
-  
-  // 경력 편집 버튼
-  const expSection = allSections[1]?.querySelector('.section-title');
-  console.log('expSection:', expSection);
-  if (expSection) {
-    const editBtn = createEditButton('편집', () => editExperiences());
-    editBtn.style.float = 'right';
-    expSection.appendChild(editBtn);
-    console.log('경력 편집 버튼 추가됨');
-  }
-  
-  // 연락처 편집 버튼 (index 3)
-  const contactSection = allSections[3]?.querySelector('.section-title');
-  console.log('contactSection:', contactSection);
-  if (contactSection) {
-    const editBtn = createEditButton('편집', () => editContacts());
-    editBtn.style.float = 'right';
-    contactSection.appendChild(editBtn);
-    console.log('연락처 편집 버튼 추가됨');
-  }
-  
-  // 관심사 편집 버튼 (index 2)
-  const interestsSection = allSections[2]?.querySelector('.section-title');
-  console.log('interestsSection:', interestsSection);
-  if (interestsSection) {
-    const editBtn = createEditButton('편집', () => editInterests());
-    editBtn.style.float = 'right';
-    interestsSection.appendChild(editBtn);
-    console.log('관심사 편집 버튼 추가됨');
-  }
-  
-  // 사이트 소개 편집 버튼 (index 4)
-  const siteInfoSection = allSections[4]?.querySelector('.section-title');
-  console.log('siteInfoSection:', siteInfoSection);
-  if (siteInfoSection) {
-    const editBtn = createEditButton('편집', () => editSiteInfo());
-    editBtn.style.float = 'right';
-    siteInfoSection.appendChild(editBtn);
-    console.log('사이트 소개 편집 버튼 추가됨');
-  }
+  // 각 섹션의 제목을 확인하여 편집 버튼 추가
+  allSections.forEach((section, index) => {
+    const title = section.querySelector('.section-title');
+    if (!title) return;
+    
+    const titleText = title.textContent.trim();
+    console.log(`섹션 ${index}: ${titleText}`);
+    
+    // 이미 버튼이 있으면 건너뛰기
+    if (title.querySelector('.btn-edit-section')) {
+      console.log(`${titleText} - 버튼 이미 존재`);
+      return;
+    }
+    
+    let editBtn;
+    switch(titleText) {
+      case '기술 스택':
+        editBtn = createEditButton('편집', () => editSkills());
+        editBtn.style.float = 'right';
+        title.appendChild(editBtn);
+        console.log('기술 스택 편집 버튼 추가됨');
+        break;
+      case '경력':
+        editBtn = createEditButton('편집', () => editExperiences());
+        editBtn.style.float = 'right';
+        title.appendChild(editBtn);
+        console.log('경력 편집 버튼 추가됨');
+        break;
+      case '관심사':
+        editBtn = createEditButton('편집', () => editInterests());
+        editBtn.style.float = 'right';
+        title.appendChild(editBtn);
+        console.log('관심사 편집 버튼 추가됨');
+        break;
+      case '연락처':
+        editBtn = createEditButton('편집', () => editContacts());
+        editBtn.style.float = 'right';
+        title.appendChild(editBtn);
+        console.log('연락처 편집 버튼 추가됨');
+        break;
+      case '이 사이트에 대하여':
+        editBtn = createEditButton('편집', () => editSiteInfo());
+        editBtn.style.float = 'right';
+        title.appendChild(editBtn);
+        console.log('사이트 소개 편집 버튼 추가됨');
+        break;
+    }
+  });
   
   console.log('모든 편집 버튼 추가 완료');
 }
