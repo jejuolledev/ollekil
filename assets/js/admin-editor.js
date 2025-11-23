@@ -5,6 +5,7 @@
 import {
   auth,
   db,
+  storage,
   onAuthStateChanged,
   collection,
   addDoc,
@@ -14,6 +15,9 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  ref,
+  uploadBytes,
+  getDownloadURL,
   ADMIN_EMAIL
 } from './firebase-config.js';
 
@@ -39,6 +43,10 @@ const authButton = document.getElementById('auth-button');
 const userInfo = document.getElementById('user-info');
 
 // Travel 필드
+const travelImageInput = document.getElementById('travel-image');
+const imagePreviewDiv = document.getElementById('image-preview');
+const previewImg = document.getElementById('preview-img');
+const imageUrlInput = document.getElementById('image-url');
 const locationInput = document.getElementById('location');
 const emojiInput = document.getElementById('emoji');
 
@@ -81,6 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 카테고리 변경 시 필드 표시/숨김
   categoryInput.addEventListener('change', handleCategoryChange);
+  
+  // 이미지 업로드 미리보기
+  if (travelImageInput) {
+    travelImageInput.addEventListener('change', handleImagePreview);
+  }
   
   // 초기 카테고리 필드 설정
   handleCategoryChange();
@@ -179,6 +192,13 @@ async function loadPost(postId) {
       if (post.category === 'travel') {
         locationInput.value = post.location || '';
         emojiInput.value = post.emoji || '';
+        
+        // 기존 이미지 URL 복원
+        if (post.imageUrl) {
+          imageUrlInput.value = post.imageUrl;
+          previewImg.src = post.imageUrl;
+          imagePreviewDiv.style.display = 'block';
+        }
       } else if (post.category === 'projects') {
         projectEmojiInput.value = post.emoji || '';
         statusInput.value = post.status || 'active';
@@ -217,16 +237,27 @@ async function handleSubmit(e) {
     updatedAt: new Date().toISOString(),
   };
   
-  // 카테고리별 추가 필드
-  if (category === 'travel') {
-    postData.location = locationInput.value;
-    postData.emoji = emojiInput.value;
-  } else if (category === 'projects') {
-    postData.emoji = projectEmojiInput.value;
-    postData.status = statusInput.value;
-  }
-  
   try {
+    // 카테고리별 추가 필드
+    if (category === 'travel') {
+      // 이미지 업로드
+      if (travelImageInput.files && travelImageInput.files[0]) {
+        console.log('이미지 업로드 시작...');
+        const imageUrl = await uploadImage(travelImageInput.files[0]);
+        postData.imageUrl = imageUrl;
+        console.log('이미지 URL 저장:', imageUrl);
+      } else if (imageUrlInput.value) {
+        // 기존 이미지 URL 유지 (수정 모드)
+        postData.imageUrl = imageUrlInput.value;
+      }
+      
+      postData.location = locationInput.value;
+      postData.emoji = emojiInput.value;
+    } else if (category === 'projects') {
+      postData.emoji = projectEmojiInput.value;
+      postData.status = statusInput.value;
+    }
+    
     if (currentPostId) {
       // 수정
       const docRef = doc(db, 'posts', currentPostId);
@@ -283,3 +314,43 @@ window.removeTag = function(tag) {
   tags = tags.filter(t => t !== tag);
   renderTags();
 };
+
+// 이미지 미리보기
+function handleImagePreview(e) {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      imagePreviewDiv.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// 이미지 Firebase Storage에 업로드
+async function uploadImage(file) {
+  if (!file) return null;
+  
+  try {
+    // 파일명 생성 (타임스탬프 + 원본 파일명)
+    const timestamp = Date.now();
+    const fileName = `travel/${timestamp}_${file.name}`;
+    
+    // Storage 참조 생성
+    const storageRef = ref(storage, fileName);
+    
+    // 업로드
+    console.log('이미지 업로드 시작:', fileName);
+    await uploadBytes(storageRef, file);
+    
+    // 다운로드 URL 가져오기
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log('업로드 성공:', downloadURL);
+    
+    return downloadURL;
+  } catch (error) {
+    console.error('이미지 업로드 실패:', error);
+    throw error;
+  }
+}

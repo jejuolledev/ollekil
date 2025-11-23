@@ -206,6 +206,15 @@
           
           <!-- Travel 전용 필드 -->
           <div class="form-group category-field" data-category="travel" style="display: none;">
+            <label class="form-label" for="travel-image">여행 사진</label>
+            <input type="file" class="form-input" id="travel-image" accept="image/*">
+            <div id="image-preview" style="margin-top: 1rem; display: none;">
+              <img id="preview-img" src="" alt="미리보기" style="max-width: 100%; border-radius: 8px;">
+            </div>
+            <input type="hidden" id="image-url" value="">
+          </div>
+          
+          <div class="form-group category-field" data-category="travel" style="display: none;">
             <label class="form-label" for="location">위치</label>
             <input type="text" class="form-input" id="location" placeholder="예: 🇯🇵 일본, 교토">
           </div>

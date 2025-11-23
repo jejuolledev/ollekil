@@ -6,6 +6,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, setDoc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 // Firebase 설정
 const firebaseConfig = {
@@ -22,6 +23,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // 관리자 이메일
 const ADMIN_EMAIL = 'jejuolleapps@gmail.com';
@@ -30,6 +32,7 @@ const ADMIN_EMAIL = 'jejuolleapps@gmail.com';
 export {
   auth,
   db,
+  storage,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
@@ -45,5 +48,8 @@ export {
   query,
   orderBy,
   limit,
+  ref,
+  uploadBytes,
+  getDownloadURL,
   ADMIN_EMAIL
 };
