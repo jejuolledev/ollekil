@@ -54,6 +54,7 @@ async function loadAboutData() {
       aboutData = getDefaultAboutData();
       await setDoc(docRef, aboutData);
       console.log('초기 데이터 저장 완료');
+      renderAboutData();
     }
   } catch (error) {
     console.error('About 데이터 로딩 실패:', error);
@@ -336,12 +337,25 @@ function createEditButton(text, onClick) {
     cursor: pointer;
     transition: all 0.2s;
   `;
-  btn.addEventListener('click', onClick);
+  btn.addEventListener('click', (e) => {
+    console.log(`편집 버튼 클릭: ${text}`);
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
+  });
   return btn;
 }
 
 // 프로필 편집
 function editProfile() {
+  console.log('프로필 편집 함수 호출');
+  
+  if (!aboutData || !aboutData.profile) {
+    console.error('aboutData.profile이 없습니다');
+    alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+  
   const { profile } = aboutData;
   
   const modal = createModal('프로필 편집', `
@@ -380,6 +394,14 @@ function editProfile() {
 
 // 기술 스택 편집
 function editSkills() {
+  console.log('기술 스택 편집 함수 호출');
+  
+  if (!aboutData || !aboutData.skills) {
+    console.error('aboutData.skills가 없습니다');
+    alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+
   const modal = createModal('기술 스택 편집', `
     <div id="skills-editor" style="display: flex; flex-direction: column; gap: 1.5rem;">
       ${aboutData.skills.map((category, catIndex) => `
@@ -430,6 +452,14 @@ function editSkills() {
 
 // 경력 편집
 function editExperiences() {
+  console.log('경력 편집 함수 호출');
+  
+  if (!aboutData || !aboutData.experiences) {
+    console.error('aboutData.experiences가 없습니다');
+    alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+
   const modal = createModal('경력 편집', `
     <div id="experiences-editor" style="display: flex; flex-direction: column; gap: 1rem;">
       ${aboutData.experiences.map((exp, index) => `
@@ -467,6 +497,14 @@ function editExperiences() {
 
 // 연락처 편집
 function editContacts() {
+  console.log('연락처 편집 함수 호출');
+  
+  if (!aboutData || !aboutData.contacts) {
+    console.error('aboutData.contacts가 없습니다');
+    alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+
   const modal = createModal('연락처 편집', `
     <div id="contacts-editor" style="display: flex; flex-direction: column; gap: 1rem;">
       ${aboutData.contacts.map((contact, index) => `
@@ -510,6 +548,15 @@ function editContacts() {
 
 // 관심사 편집
 function editInterests() {
+  console.log('관심사 편집 함수 호출');
+  console.log('aboutData:', aboutData);
+  
+  if (!aboutData || !aboutData.interests) {
+    console.error('aboutData.interests가 없습니다');
+    alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+  
   const modal = createModal('관심사 편집', `
     <div id="interests-editor" style="display: flex; flex-direction: column; gap: 1rem;">
       ${aboutData.interests.map((interest, index) => `
@@ -549,6 +596,15 @@ function editInterests() {
 
 // 사이트 소개 편집
 function editSiteInfo() {
+  console.log('사이트 소개 편집 함수 호출');
+  console.log('aboutData:', aboutData);
+  
+  if (!aboutData || !aboutData.siteInfo) {
+    console.error('aboutData.siteInfo가 없습니다');
+    alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+  
   const modal = createModal('사이트 소개 편집', `
     <div style="display: flex; flex-direction: column; gap: 1rem;">
       <div>
