@@ -318,6 +318,7 @@ async function handleSubmit(e) {
 
   const submitButton = e.target.querySelector('.btn-submit');
   let overlay = null;
+  let success = false;
 
   try {
     console.log('폼 제출 시작...');
@@ -376,12 +377,14 @@ async function handleSubmit(e) {
           } catch (error) {
             console.error(`이미지 ${i + 1} 업로드 실패:`, error);
             uploadErrors.push({ file: file.name, error: error.message });
+            // 첫 번째 에러 발생 시 즉시 중단
+            break;
           }
         }
 
         if (uploadErrors.length > 0) {
           const errorMsg = uploadErrors.map(e => `- ${e.file}: ${e.error}`).join('\n');
-          throw new Error(`일부 이미지 업로드 실패:\n${errorMsg}`);
+          throw new Error(`이미지 업로드 실패:\n${errorMsg}\n\n네트워크 연결을 확인하고 다시 시도해주세요.`);
         }
 
         if (imageUrls.length === 0) {
@@ -417,6 +420,7 @@ async function handleSubmit(e) {
     }
 
     updateLoadingMessage('완료!', '페이지로 이동 중...');
+    success = true;
 
     // 짧은 딜레이 후 페이지 이동 (사용자가 완료 메시지를 볼 수 있도록)
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -425,11 +429,25 @@ async function handleSubmit(e) {
     window.location.href = `/${postData.category}/`;
   } catch (error) {
     console.error('저장 실패:', error);
+
+    // 로딩 오버레이 제거
     removeLoadingOverlay();
-    alert('글 저장에 실패했습니다: ' + error.message);
+
+    // 사용자에게 에러 메시지 표시
+    const errorMessage = error.message || '알 수 없는 오류가 발생했습니다.';
+    alert('글 저장에 실패했습니다:\n\n' + errorMessage);
 
     // 버튼 복원
     submitButton.disabled = false;
+  } finally {
+    // 성공하지 못한 경우 (페이지 이동하지 않은 경우)에만 정리
+    if (!success) {
+      // 혹시 모를 경우를 대비해 오버레이 한번 더 제거 시도
+      setTimeout(() => {
+        removeLoadingOverlay();
+        submitButton.disabled = false;
+      }, 100);
+    }
   }
 }
 
@@ -551,15 +569,36 @@ function handleImagePreview(e) {
   imagePreviewDiv.style.display = 'block';
 }
 
+// Promise에 타임아웃 추가하는 헬퍼 함수
+function withTimeout(promise, timeoutMs, errorMessage) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
+    )
+  ]);
+}
+
 // 이미지 Firebase Storage에 업로드
 async function uploadImage(file) {
   if (!file) return null;
 
   const maxRetries = 3;
   let retryCount = 0;
+  const uploadTimeout = 60000; // 60초 타임아웃
 
   while (retryCount < maxRetries) {
     try {
+      // Storage 초기화 확인
+      if (!storage) {
+        throw new Error('Firebase Storage가 초기화되지 않았습니다.');
+      }
+
+      // 인증 상태 확인
+      if (!auth.currentUser) {
+        throw new Error('로그인이 필요합니다. 페이지를 새로고침해주세요.');
+      }
+
       // 파일명 생성 (타임스탬프 + 원본 파일명)
       const timestamp = Date.now();
       const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -571,23 +610,63 @@ async function uploadImage(file) {
       // 업로드
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       console.log(`이미지 업로드 시작: ${fileName} (${fileSizeMB}MB)`);
+      console.log('Storage 버킷:', storage.app.options.storageBucket);
+      console.log('사용자:', auth.currentUser?.email);
 
-      await uploadBytes(storageRef, file);
+      // 메타데이터 설정
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: auth.currentUser.email,
+          uploadedAt: new Date().toISOString()
+        }
+      };
 
-      // 다운로드 URL 가져오기
-      const downloadURL = await getDownloadURL(storageRef);
+      // 타임아웃과 함께 업로드
+      console.log('uploadBytes 시작...');
+      const uploadResult = await withTimeout(
+        uploadBytes(storageRef, file, metadata),
+        uploadTimeout,
+        `업로드 타임아웃 (${uploadTimeout/1000}초 초과)`
+      );
+      console.log('uploadBytes 완료:', uploadResult);
+
+      // 다운로드 URL 가져오기 (타임아웃 포함)
+      console.log('getDownloadURL 시작...');
+      const downloadURL = await withTimeout(
+        getDownloadURL(storageRef),
+        10000,
+        'URL 가져오기 타임아웃 (10초 초과)'
+      );
       console.log('업로드 성공:', downloadURL);
 
       return downloadURL;
     } catch (error) {
       retryCount++;
-      console.error(`이미지 업로드 실패 (시도 ${retryCount}/${maxRetries}):`, error);
+
+      // 에러 상세 정보 출력
+      console.error(`이미지 업로드 실패 (시도 ${retryCount}/${maxRetries}):`, {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      });
+
+      // Firebase 에러 코드별 처리
+      if (error.code === 'storage/unauthorized') {
+        throw new Error(`권한 오류: Firebase Storage 규칙을 확인해주세요.\n에러: ${error.message}`);
+      } else if (error.code === 'storage/canceled') {
+        throw new Error('업로드가 취소되었습니다.');
+      } else if (error.code === 'storage/unknown') {
+        console.error('알 수 없는 Storage 에러:', error);
+      }
 
       if (retryCount >= maxRetries) {
-        throw new Error(`이미지 업로드 실패 (${file.name}): ${error.message}`);
+        throw new Error(`이미지 업로드 실패 (${file.name}): ${error.message}\n\n에러 코드: ${error.code || 'N/A'}`);
       }
 
       // 재시도 전 대기 (1초, 2초, 3초)
+      console.log(`${retryCount}초 후 재시도...`);
       await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
     }
   }
