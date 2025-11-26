@@ -4,8 +4,7 @@
 
 // Firebase SDK import (CDN 사용)
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, setDoc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Firebase 설정
 const firebaseConfig = {
@@ -20,30 +19,16 @@ const firebaseConfig = {
 
 // Firebase 초기화
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 관리자 이메일
-const ADMIN_EMAIL = 'jejuolleapps@gmail.com';
-
-// Export
+// Export (읽기 전용 - 블로그 표시용)
 export {
-  auth,
   db,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
   collection,
-  addDoc,
   getDocs,
   getDoc,
   doc,
-  updateDoc,
-  deleteDoc,
-  setDoc,
   query,
   orderBy,
-  limit,
-  ADMIN_EMAIL
+  limit
 };
