@@ -231,6 +231,82 @@ async function loadPost(postId) {
   }
 }
 
+// 로딩 오버레이 생성
+function createLoadingOverlay() {
+  const overlay = document.createElement('div');
+  overlay.id = 'upload-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+  `;
+
+  const spinner = document.createElement('div');
+  spinner.style.cssText = `
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  `;
+
+  const message = document.createElement('div');
+  message.id = 'upload-message';
+  message.style.cssText = `
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  `;
+
+  const progress = document.createElement('div');
+  progress.id = 'upload-progress';
+  progress.style.cssText = `
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+  `;
+
+  overlay.appendChild(spinner);
+  overlay.appendChild(message);
+  overlay.appendChild(progress);
+
+  // 스피너 애니메이션 추가
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+// 로딩 오버레이 메시지 업데이트
+function updateLoadingMessage(message, progress = '') {
+  const messageEl = document.getElementById('upload-message');
+  const progressEl = document.getElementById('upload-progress');
+  if (messageEl) messageEl.textContent = message;
+  if (progressEl) progressEl.textContent = progress;
+}
+
+// 로딩 오버레이 제거
+function removeLoadingOverlay() {
+  const overlay = document.getElementById('upload-overlay');
+  if (overlay) overlay.remove();
+}
+
 // 폼 제출 처리
 async function handleSubmit(e) {
   e.preventDefault();
@@ -241,16 +317,17 @@ async function handleSubmit(e) {
   }
 
   const submitButton = e.target.querySelector('.btn-submit');
-  const originalButtonText = submitButton.textContent;
+  let overlay = null;
 
   try {
     console.log('폼 제출 시작...');
 
-    // 로딩 상태로 변경
+    // 전체 화면 로딩 오버레이 표시
+    overlay = createLoadingOverlay();
+    updateLoadingMessage('업로드 준비 중...', '');
+
+    // 버튼 비활성화
     submitButton.disabled = true;
-    submitButton.textContent = '📤 업로드 중...';
-    submitButton.style.opacity = '0.7';
-    submitButton.style.cursor = 'not-allowed';
 
     const category = categoryInput.value;
     const postData = {
@@ -277,7 +354,7 @@ async function handleSubmit(e) {
         const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
         console.log(`총 파일 크기: ${totalSizeMB}MB`);
 
-        submitButton.textContent = `🖼️ 이미지 업로드 중 (0/${files.length})...`;
+        updateLoadingMessage('이미지 업로드 중...', `0/${files.length} (총 ${totalSizeMB}MB)`);
 
         const imageUrls = [];
         const uploadErrors = [];
@@ -286,7 +363,10 @@ async function handleSubmit(e) {
           const file = files[i];
           const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
-          submitButton.textContent = `🖼️ 이미지 업로드 중 (${i + 1}/${files.length}) - ${file.name} (${fileSizeMB}MB)...`;
+          updateLoadingMessage(
+            '이미지 업로드 중...',
+            `${i + 1}/${files.length} - ${file.name} (${fileSizeMB}MB)`
+          );
           console.log(`이미지 ${i + 1}/${files.length} 업로드 중: ${file.name} (${fileSizeMB}MB)`);
 
           try {
@@ -322,31 +402,34 @@ async function handleSubmit(e) {
       postData.status = statusInput.value;
     }
 
-    submitButton.textContent = '💾 저장 중...';
+    updateLoadingMessage('글 저장 중...', '데이터베이스에 저장하는 중...');
 
     if (currentPostId) {
       // 수정
       const docRef = doc(db, 'posts', currentPostId);
       await updateDoc(docRef, postData);
-      alert('글이 수정되었습니다!');
+      console.log('글 수정 완료');
     } else {
       // 새 글 작성
       postData.createdAt = new Date().toISOString();
       await addDoc(collection(db, 'posts'), postData);
-      alert('글이 발행되었습니다!');
+      console.log('글 발행 완료');
     }
+
+    updateLoadingMessage('완료!', '페이지로 이동 중...');
+
+    // 짧은 딜레이 후 페이지 이동 (사용자가 완료 메시지를 볼 수 있도록)
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 해당 카테고리 페이지로 이동
     window.location.href = `/${postData.category}/`;
   } catch (error) {
     console.error('저장 실패:', error);
+    removeLoadingOverlay();
     alert('글 저장에 실패했습니다: ' + error.message);
 
     // 버튼 복원
     submitButton.disabled = false;
-    submitButton.textContent = originalButtonText;
-    submitButton.style.opacity = '1';
-    submitButton.style.cursor = 'pointer';
   }
 }
 
