@@ -48,7 +48,6 @@ const imagePreviewDiv = document.getElementById('image-preview');
 const previewContainer = document.getElementById('preview-container');
 const imageUrlsInput = document.getElementById('image-urls');
 const locationInput = document.getElementById('location');
-const emojiInput = document.getElementById('emoji');
 
 // Projects 필드
 const projectEmojiInput = document.getElementById('project-emoji');
@@ -245,10 +244,13 @@ async function handleSubmit(e) {
   const originalButtonText = submitButton.textContent;
 
   try {
+    console.log('폼 제출 시작...');
+
     // 로딩 상태로 변경
     submitButton.disabled = true;
-    submitButton.textContent = '업로드 중...';
-    submitButton.style.opacity = '0.6';
+    submitButton.textContent = '📤 업로드 중...';
+    submitButton.style.opacity = '0.7';
+    submitButton.style.cursor = 'not-allowed';
 
     const category = categoryInput.value;
     const postData = {
@@ -265,13 +267,13 @@ async function handleSubmit(e) {
       // 이미지 업로드
       if (travelImageInput.files && travelImageInput.files.length > 0) {
         console.log(`${travelImageInput.files.length}개의 이미지 업로드 시작...`);
-        submitButton.textContent = `이미지 업로드 중 (0/${travelImageInput.files.length})...`;
+        submitButton.textContent = `🖼️ 이미지 업로드 중 (0/${travelImageInput.files.length})...`;
 
         const imageUrls = [];
         const files = Array.from(travelImageInput.files);
 
         for (let i = 0; i < files.length; i++) {
-          submitButton.textContent = `이미지 업로드 중 (${i + 1}/${files.length})...`;
+          submitButton.textContent = `🖼️ 이미지 업로드 중 (${i + 1}/${files.length})...`;
           console.log(`이미지 ${i + 1}/${files.length} 업로드 중...`);
 
           const imageUrl = await uploadImage(files[i]);
@@ -293,7 +295,7 @@ async function handleSubmit(e) {
       postData.status = statusInput.value;
     }
 
-    submitButton.textContent = '저장 중...';
+    submitButton.textContent = '💾 저장 중...';
 
     if (currentPostId) {
       // 수정
@@ -317,6 +319,7 @@ async function handleSubmit(e) {
     submitButton.disabled = false;
     submitButton.textContent = originalButtonText;
     submitButton.style.opacity = '1';
+    submitButton.style.cursor = 'pointer';
   }
 }
 
@@ -361,25 +364,46 @@ window.removeTag = function(tag) {
 function handleImagePreview(e) {
   const files = Array.from(e.target.files);
 
-  if (files.length === 0) return;
+  if (files.length === 0) {
+    imagePreviewDiv.style.display = 'none';
+    return;
+  }
+
+  console.log(`${files.length}개의 파일이 선택되었습니다.`);
 
   // 이미지 크기 검증 (5MB 제한)
   const maxSize = 5 * 1024 * 1024; // 5MB
   const oversizedFiles = files.filter(file => file.size > maxSize);
 
   if (oversizedFiles.length > 0) {
-    alert(`일부 이미지가 너무 큽니다 (최대 5MB). 큰 이미지를 제거하고 다시 선택해주세요.\n큰 파일: ${oversizedFiles.map(f => f.name).join(', ')}`);
+    alert(`일부 이미지가 너무 큽니다 (최대 5MB).\n큰 파일: ${oversizedFiles.map(f => f.name).join(', ')}\n\n다시 선택해주세요.`);
     travelImageInput.value = ''; // 파일 선택 초기화
+    imagePreviewDiv.style.display = 'none';
     return;
   }
 
   // 미리보기 컨테이너 초기화
   previewContainer.innerHTML = '';
 
+  // 로딩 메시지 표시
+  const loadingMsg = document.createElement('div');
+  loadingMsg.textContent = '미리보기 생성 중...';
+  loadingMsg.style.cssText = 'color: #666; margin-bottom: 1rem;';
+  previewContainer.appendChild(loadingMsg);
+
+  let loadedCount = 0;
+
   files.forEach((file, index) => {
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = function(e) {
+        loadedCount++;
+
+        // 첫 이미지 로드 시 로딩 메시지 제거
+        if (loadedCount === 1) {
+          loadingMsg.remove();
+        }
+
         const imgWrapper = document.createElement('div');
         imgWrapper.style.cssText = 'position: relative; width: 150px;';
 
@@ -395,8 +419,13 @@ function handleImagePreview(e) {
         imgWrapper.appendChild(img);
         imgWrapper.appendChild(fileName);
         previewContainer.appendChild(imgWrapper);
+
+        console.log(`미리보기 ${loadedCount}/${files.length} 생성 완료`);
       };
       reader.readAsDataURL(file);
+    } else {
+      loadedCount++;
+      console.log(`${file.name}은(는) 이미지 파일이 아닙니다.`);
     }
   });
 
