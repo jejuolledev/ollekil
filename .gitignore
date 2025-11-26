@@ -1,0 +1,6 @@
+.DS_Store
+*.log
+node_modules/
+
+# 로컬 설정 파일 (토큰 포함)
+assets/js/config.js
