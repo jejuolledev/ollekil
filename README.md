@@ -14,12 +14,16 @@ iOS 엔지니어의 개인 블로그 & 디지털 가든
 - **반응형 디자인**: 모바일, 태블릿, 데스크탑 모두 지원
 - **디자인 시스템**: CSS Variables로 일관된 스타일 유지
 - **SEO 최적화**: 각 페이지 독립 HTML로 검색 엔진 친화적
+- **Firebase 연동**: Firestore를 이용한 실시간 콘텐츠 관리
+- **GitHub 이미지 저장**: Firebase Storage 없이 Git 저장소에 이미지 저장 (완전 무료)
 
 ## 📂 프로젝트 구조
 
 ```
 ollekil/
 ├── index.html              # 메인 랜딩 페이지
+├── admin/                  # 관리자 페이지
+│   └── index.html         # 글쓰기/수정 에디터
 ├── log/                    # 일상 로그
 ├── tech/                   # 기술 블로그
 ├── travel/                 # 여행 기록
@@ -28,8 +32,12 @@ ollekil/
 ├── assets/
 │   ├── css/               # 스타일시트
 │   ├── js/                # JavaScript
+│   │   ├── firebase-config.js      # Firebase 설정
+│   │   ├── github-uploader.js      # GitHub 이미지 업로더
+│   │   └── admin-editor.js         # 관리자 에디터
 │   └── images/            # 이미지 파일
-└── data/                   # JSON 데이터 (향후 추가)
+│       └── travel/        # 여행 포스트 이미지 (GitHub에 저장)
+└── GITHUB_IMAGE_UPLOAD_GUIDE.md   # 이미지 업로드 가이드
 ```
 
 ## 🚀 로컬 실행
@@ -91,24 +99,21 @@ http-server
 
 ## 📝 컨텐츠 추가
 
-### 새 포스트 추가
-각 섹션의 `index.html` 파일에서 `posts-list` 안에 새 `<article>` 블록을 추가하면 됩니다:
+### 관리자 페이지에서 작성 (권장)
+1. `/admin/` 페이지 접속
+2. Google 계정으로 로그인 (관리자 이메일만 접근 가능)
+3. 카테고리 선택 (Log, Tech, Travel, Projects)
+4. 제목, 본문, 태그 입력
+5. Travel 포스트의 경우 이미지 업로드 가능
+6. "발행하기" 클릭
 
-```html
-<article class="post-card">
-  <time class="post-date">2024.11.22</time>
-  <h2 class="post-title">
-    <a href="#">새 글 제목</a>
-  </h2>
-  <p class="post-excerpt">
-    글 요약...
-  </p>
-  <div class="post-tags">
-    <span class="tag">태그1</span>
-    <span class="tag">태그2</span>
-  </div>
-</article>
-```
+### 이미지 업로드 방법
+Travel 포스트에 이미지를 추가하려면:
+1. GitHub Personal Access Token 생성 ([가이드](GITHUB_IMAGE_UPLOAD_GUIDE.md) 참고)
+2. 첫 업로드 시 토큰 입력 (이후 자동 저장)
+3. 여러 이미지 선택 가능 (Ctrl/Cmd + 클릭)
+4. 이미지는 `assets/images/travel/` 폴더에 자동 저장
+5. GitHub Pages URL로 자동 서빙
 
 ## 🌐 배포
 
