@@ -2,6 +2,16 @@
 // GitHub 이미지 업로더
 // ============================================
 
+// 로컬 설정 파일에서 토큰 가져오기 (선택사항)
+let CONFIG = null;
+try {
+  const configModule = await import('./config.js');
+  CONFIG = configModule.CONFIG;
+  console.log('✅ config.js에서 GitHub 토큰 로드됨');
+} catch (e) {
+  console.log('ℹ️ config.js 없음 - localStorage 또는 수동 입력 사용');
+}
+
 // GitHub 저장소 정보
 const GITHUB_OWNER = 'jejuolledev';
 const GITHUB_REPO = 'ollekil';
@@ -16,6 +26,12 @@ class GitHubTokenManager {
 
   // 토큰 가져오기
   getToken() {
+    // 1순위: config.js 파일에서
+    if (CONFIG && CONFIG.GITHUB_TOKEN && CONFIG.GITHUB_TOKEN !== 'YOUR_GITHUB_TOKEN_HERE') {
+      return CONFIG.GITHUB_TOKEN;
+    }
+
+    // 2순위: localStorage에서
     return localStorage.getItem(this.storageKey);
   }
 

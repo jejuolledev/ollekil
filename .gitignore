@@ -1,0 +1,9 @@
+.DS_Store
+*.log
+node_modules/
+
+# 로컬 설정 파일 (토큰 포함)
+assets/js/config.js
+
+# 관리자 페이지 (별도 Private Repo로 관리)
+admin/
