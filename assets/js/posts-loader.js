@@ -146,8 +146,13 @@ function renderTravelPost(post) {
   ` : '';
 
   // 이미지 URL이 있으면 실제 이미지 표시, 없으면 기본 이모지 표시
-  const imageHtml = post.imageUrl
-    ? `<img src="${post.imageUrl}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;">`
+  // 여러 이미지가 있으면 첫 번째 이미지를 대표로 사용
+  const imageUrl = post.imageUrls && post.imageUrls.length > 0
+    ? post.imageUrls[0]
+    : post.imageUrl; // 기존 단일 이미지 지원 (하위 호환성)
+
+  const imageHtml = imageUrl
+    ? `<img src="${imageUrl}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;">`
     : `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem;">✈️</div>`;
 
   return `
