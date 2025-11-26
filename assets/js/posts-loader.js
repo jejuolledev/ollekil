@@ -137,18 +137,23 @@ function renderTravelPost(post) {
     year: 'numeric',
     month: 'long'
   });
-  
+
   const adminControls = isAdmin ? `
     <div class="admin-controls" style="margin-top: var(--spacing-md);">
       <button class="btn-edit" onclick="editPost('${post.id}')">수정</button>
       <button class="btn-delete" onclick="deletePost('${post.id}')">삭제</button>
     </div>
   ` : '';
-  
+
+  // 이미지 URL이 있으면 실제 이미지 표시, 없으면 기본 이모지 표시
+  const imageHtml = post.imageUrl
+    ? `<img src="${post.imageUrl}" alt="${post.title}" style="width: 100%; height: 100%; object-fit: cover;">`
+    : `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 4rem;">✈️</div>`;
+
   return `
     <article class="travel-card" data-id="${post.id}">
       <a href="#">
-        <div class="travel-image">${post.emoji || '✈️'}</div>
+        <div class="travel-image">${imageHtml}</div>
         <div class="travel-content">
           <div class="travel-location">${post.location || ''}</div>
           <h2 class="travel-title">${post.title}</h2>
