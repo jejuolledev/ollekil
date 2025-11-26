@@ -5,7 +5,6 @@
 import {
   auth,
   db,
-  storage,
   onAuthStateChanged,
   collection,
   addDoc,
@@ -15,11 +14,10 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  ref,
-  uploadBytes,
-  getDownloadURL,
   ADMIN_EMAIL
 } from './firebase-config.js';
+
+import { githubUploader } from './github-uploader.js';
 
 // 상태
 let isAdmin = false;
@@ -579,95 +577,30 @@ function withTimeout(promise, timeoutMs, errorMessage) {
   ]);
 }
 
-// 이미지 Firebase Storage에 업로드
+// 이미지 GitHub 저장소에 업로드
 async function uploadImage(file) {
   if (!file) return null;
 
-  const maxRetries = 3;
-  let retryCount = 0;
-  const uploadTimeout = 60000; // 60초 타임아웃
+  // 인증 상태 확인
+  if (!auth.currentUser) {
+    throw new Error('로그인이 필요합니다. 페이지를 새로고침해주세요.');
+  }
 
-  while (retryCount < maxRetries) {
-    try {
-      // Storage 초기화 확인
-      if (!storage) {
-        throw new Error('Firebase Storage가 초기화되지 않았습니다.');
-      }
+  const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+  console.log(`GitHub에 이미지 업로드 시작: ${file.name} (${fileSizeMB}MB)`);
 
-      // 인증 상태 확인
-      if (!auth.currentUser) {
-        throw new Error('로그인이 필요합니다. 페이지를 새로고침해주세요.');
-      }
+  try {
+    // GitHub API를 사용하여 업로드
+    const imageUrl = await withTimeout(
+      githubUploader.uploadImage(file),
+      120000, // 2분 타임아웃 (GitHub API가 조금 더 느릴 수 있음)
+      '업로드 타임아웃 (2분 초과)'
+    );
 
-      // 파일명 생성 (타임스탬프 + 원본 파일명)
-      const timestamp = Date.now();
-      const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileName = `travel/${timestamp}_${safeFileName}`;
-
-      // Storage 참조 생성
-      const storageRef = ref(storage, fileName);
-
-      // 업로드
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      console.log(`이미지 업로드 시작: ${fileName} (${fileSizeMB}MB)`);
-      console.log('Storage 버킷:', storage.app.options.storageBucket);
-      console.log('사용자:', auth.currentUser?.email);
-
-      // 메타데이터 설정
-      const metadata = {
-        contentType: file.type,
-        customMetadata: {
-          uploadedBy: auth.currentUser.email,
-          uploadedAt: new Date().toISOString()
-        }
-      };
-
-      // 타임아웃과 함께 업로드
-      console.log('uploadBytes 시작...');
-      const uploadResult = await withTimeout(
-        uploadBytes(storageRef, file, metadata),
-        uploadTimeout,
-        `업로드 타임아웃 (${uploadTimeout/1000}초 초과)`
-      );
-      console.log('uploadBytes 완료:', uploadResult);
-
-      // 다운로드 URL 가져오기 (타임아웃 포함)
-      console.log('getDownloadURL 시작...');
-      const downloadURL = await withTimeout(
-        getDownloadURL(storageRef),
-        10000,
-        'URL 가져오기 타임아웃 (10초 초과)'
-      );
-      console.log('업로드 성공:', downloadURL);
-
-      return downloadURL;
-    } catch (error) {
-      retryCount++;
-
-      // 에러 상세 정보 출력
-      console.error(`이미지 업로드 실패 (시도 ${retryCount}/${maxRetries}):`, {
-        message: error.message,
-        code: error.code,
-        name: error.name,
-        stack: error.stack
-      });
-
-      // Firebase 에러 코드별 처리
-      if (error.code === 'storage/unauthorized') {
-        throw new Error(`권한 오류: Firebase Storage 규칙을 확인해주세요.\n에러: ${error.message}`);
-      } else if (error.code === 'storage/canceled') {
-        throw new Error('업로드가 취소되었습니다.');
-      } else if (error.code === 'storage/unknown') {
-        console.error('알 수 없는 Storage 에러:', error);
-      }
-
-      if (retryCount >= maxRetries) {
-        throw new Error(`이미지 업로드 실패 (${file.name}): ${error.message}\n\n에러 코드: ${error.code || 'N/A'}`);
-      }
-
-      // 재시도 전 대기 (1초, 2초, 3초)
-      console.log(`${retryCount}초 후 재시도...`);
-      await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
-    }
+    console.log('GitHub 업로드 성공:', imageUrl);
+    return imageUrl;
+  } catch (error) {
+    console.error('GitHub 업로드 실패:', error);
+    throw new Error(`이미지 업로드 실패 (${file.name}): ${error.message}`);
   }
 }
