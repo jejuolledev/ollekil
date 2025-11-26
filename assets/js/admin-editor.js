@@ -266,27 +266,54 @@ async function handleSubmit(e) {
     if (category === 'travel') {
       // 이미지 업로드
       if (travelImageInput.files && travelImageInput.files.length > 0) {
-        console.log(`${travelImageInput.files.length}개의 이미지 업로드 시작...`);
-        submitButton.textContent = `🖼️ 이미지 업로드 중 (0/${travelImageInput.files.length})...`;
+        const files = Array.from(travelImageInput.files).filter(file => file.type.startsWith('image/'));
+
+        if (files.length === 0) {
+          throw new Error('유효한 이미지 파일이 없습니다.');
+        }
+
+        console.log(`${files.length}개의 이미지 업로드 시작...`);
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+        console.log(`총 파일 크기: ${totalSizeMB}MB`);
+
+        submitButton.textContent = `🖼️ 이미지 업로드 중 (0/${files.length})...`;
 
         const imageUrls = [];
-        const files = Array.from(travelImageInput.files);
+        const uploadErrors = [];
 
         for (let i = 0; i < files.length; i++) {
-          submitButton.textContent = `🖼️ 이미지 업로드 중 (${i + 1}/${files.length})...`;
-          console.log(`이미지 ${i + 1}/${files.length} 업로드 중...`);
+          const file = files[i];
+          const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
-          const imageUrl = await uploadImage(files[i]);
-          imageUrls.push(imageUrl);
+          submitButton.textContent = `🖼️ 이미지 업로드 중 (${i + 1}/${files.length}) - ${file.name} (${fileSizeMB}MB)...`;
+          console.log(`이미지 ${i + 1}/${files.length} 업로드 중: ${file.name} (${fileSizeMB}MB)`);
 
-          console.log(`이미지 ${i + 1} 업로드 완료:`, imageUrl);
+          try {
+            const imageUrl = await uploadImage(file);
+            imageUrls.push(imageUrl);
+            console.log(`이미지 ${i + 1} 업로드 완료:`, imageUrl);
+          } catch (error) {
+            console.error(`이미지 ${i + 1} 업로드 실패:`, error);
+            uploadErrors.push({ file: file.name, error: error.message });
+          }
+        }
+
+        if (uploadErrors.length > 0) {
+          const errorMsg = uploadErrors.map(e => `- ${e.file}: ${e.error}`).join('\n');
+          throw new Error(`일부 이미지 업로드 실패:\n${errorMsg}`);
+        }
+
+        if (imageUrls.length === 0) {
+          throw new Error('업로드된 이미지가 없습니다.');
         }
 
         postData.imageUrls = imageUrls;
-        console.log('모든 이미지 URL 저장:', imageUrls);
+        console.log(`모든 이미지 업로드 완료 (${imageUrls.length}개):`, imageUrls);
       } else if (imageUrlsInput.value) {
         // 기존 이미지 URL 유지 (수정 모드)
         postData.imageUrls = JSON.parse(imageUrlsInput.value);
+        console.log('기존 이미지 URL 유지:', postData.imageUrls);
       }
 
       postData.location = locationInput.value;
@@ -371,16 +398,20 @@ function handleImagePreview(e) {
 
   console.log(`${files.length}개의 파일이 선택되었습니다.`);
 
-  // 이미지 크기 검증 (5MB 제한)
-  const maxSize = 5 * 1024 * 1024; // 5MB
-  const oversizedFiles = files.filter(file => file.size > maxSize);
+  // 이미지 파일만 필터링
+  const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
-  if (oversizedFiles.length > 0) {
-    alert(`일부 이미지가 너무 큽니다 (최대 5MB).\n큰 파일: ${oversizedFiles.map(f => f.name).join(', ')}\n\n다시 선택해주세요.`);
-    travelImageInput.value = ''; // 파일 선택 초기화
+  if (imageFiles.length === 0) {
+    alert('이미지 파일을 선택해주세요.');
+    travelImageInput.value = '';
     imagePreviewDiv.style.display = 'none';
     return;
   }
+
+  // 파일 크기 정보 출력
+  const totalSize = imageFiles.reduce((sum, file) => sum + file.size, 0);
+  const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+  console.log(`총 파일 크기: ${totalSizeMB}MB`);
 
   // 미리보기 컨테이너 초기화
   previewContainer.innerHTML = '';
@@ -393,40 +424,45 @@ function handleImagePreview(e) {
 
   let loadedCount = 0;
 
-  files.forEach((file, index) => {
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        loadedCount++;
-
-        // 첫 이미지 로드 시 로딩 메시지 제거
-        if (loadedCount === 1) {
-          loadingMsg.remove();
-        }
-
-        const imgWrapper = document.createElement('div');
-        imgWrapper.style.cssText = 'position: relative; width: 150px;';
-
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        img.alt = `미리보기 ${index + 1}`;
-        img.style.cssText = 'width: 100%; height: 150px; object-fit: cover; border-radius: 8px;';
-
-        const fileName = document.createElement('div');
-        fileName.textContent = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
-        fileName.style.cssText = 'font-size: 11px; color: #666; margin-top: 4px; text-align: center;';
-
-        imgWrapper.appendChild(img);
-        imgWrapper.appendChild(fileName);
-        previewContainer.appendChild(imgWrapper);
-
-        console.log(`미리보기 ${loadedCount}/${files.length} 생성 완료`);
-      };
-      reader.readAsDataURL(file);
-    } else {
+  imageFiles.forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
       loadedCount++;
-      console.log(`${file.name}은(는) 이미지 파일이 아닙니다.`);
-    }
+
+      // 첫 이미지 로드 시 로딩 메시지 제거
+      if (loadedCount === 1) {
+        loadingMsg.remove();
+      }
+
+      const imgWrapper = document.createElement('div');
+      imgWrapper.style.cssText = 'position: relative; width: 150px;';
+
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.alt = `미리보기 ${index + 1}`;
+      img.style.cssText = 'width: 100%; height: 150px; object-fit: cover; border-radius: 8px;';
+
+      const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+      const fileName = document.createElement('div');
+      fileName.textContent = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
+      fileName.style.cssText = 'font-size: 11px; color: #666; margin-top: 4px; text-align: center;';
+
+      const fileSizeDiv = document.createElement('div');
+      fileSizeDiv.textContent = `${fileSize}MB`;
+      fileSizeDiv.style.cssText = 'font-size: 10px; color: #999; text-align: center;';
+
+      imgWrapper.appendChild(img);
+      imgWrapper.appendChild(fileName);
+      imgWrapper.appendChild(fileSizeDiv);
+      previewContainer.appendChild(imgWrapper);
+
+      console.log(`미리보기 ${loadedCount}/${imageFiles.length} 생성 완료 (${fileSize}MB)`);
+    };
+    reader.onerror = function(error) {
+      console.error(`파일 읽기 실패: ${file.name}`, error);
+      loadedCount++;
+    };
+    reader.readAsDataURL(file);
   });
 
   imagePreviewDiv.style.display = 'block';
@@ -435,26 +471,41 @@ function handleImagePreview(e) {
 // 이미지 Firebase Storage에 업로드
 async function uploadImage(file) {
   if (!file) return null;
-  
-  try {
-    // 파일명 생성 (타임스탬프 + 원본 파일명)
-    const timestamp = Date.now();
-    const fileName = `travel/${timestamp}_${file.name}`;
-    
-    // Storage 참조 생성
-    const storageRef = ref(storage, fileName);
-    
-    // 업로드
-    console.log('이미지 업로드 시작:', fileName);
-    await uploadBytes(storageRef, file);
-    
-    // 다운로드 URL 가져오기
-    const downloadURL = await getDownloadURL(storageRef);
-    console.log('업로드 성공:', downloadURL);
-    
-    return downloadURL;
-  } catch (error) {
-    console.error('이미지 업로드 실패:', error);
-    throw error;
+
+  const maxRetries = 3;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      // 파일명 생성 (타임스탬프 + 원본 파일명)
+      const timestamp = Date.now();
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileName = `travel/${timestamp}_${safeFileName}`;
+
+      // Storage 참조 생성
+      const storageRef = ref(storage, fileName);
+
+      // 업로드
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      console.log(`이미지 업로드 시작: ${fileName} (${fileSizeMB}MB)`);
+
+      await uploadBytes(storageRef, file);
+
+      // 다운로드 URL 가져오기
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log('업로드 성공:', downloadURL);
+
+      return downloadURL;
+    } catch (error) {
+      retryCount++;
+      console.error(`이미지 업로드 실패 (시도 ${retryCount}/${maxRetries}):`, error);
+
+      if (retryCount >= maxRetries) {
+        throw new Error(`이미지 업로드 실패 (${file.name}): ${error.message}`);
+      }
+
+      // 재시도 전 대기 (1초, 2초, 3초)
+      await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
+    }
   }
 }
