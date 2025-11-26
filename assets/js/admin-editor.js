@@ -45,8 +45,8 @@ const userInfo = document.getElementById('user-info');
 // Travel 필드
 const travelImageInput = document.getElementById('travel-image');
 const imagePreviewDiv = document.getElementById('image-preview');
-const previewImg = document.getElementById('preview-img');
-const imageUrlInput = document.getElementById('image-url');
+const previewContainer = document.getElementById('preview-container');
+const imageUrlsInput = document.getElementById('image-urls');
 const locationInput = document.getElementById('location');
 const emojiInput = document.getElementById('emoji');
 
@@ -193,9 +193,24 @@ async function loadPost(postId) {
         locationInput.value = post.location || '';
 
         // 기존 이미지 URL 복원
-        if (post.imageUrl) {
-          imageUrlInput.value = post.imageUrl;
-          previewImg.src = post.imageUrl;
+        if (post.imageUrls && post.imageUrls.length > 0) {
+          imageUrlsInput.value = JSON.stringify(post.imageUrls);
+
+          // 미리보기 표시
+          previewContainer.innerHTML = '';
+          post.imageUrls.forEach((url, index) => {
+            const imgWrapper = document.createElement('div');
+            imgWrapper.style.cssText = 'position: relative; width: 150px;';
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = `미리보기 ${index + 1}`;
+            img.style.cssText = 'width: 100%; height: 150px; object-fit: cover; border-radius: 8px;';
+
+            imgWrapper.appendChild(img);
+            previewContainer.appendChild(imgWrapper);
+          });
+
           imagePreviewDiv.style.display = 'block';
         }
       } else if (post.category === 'projects') {
@@ -220,34 +235,56 @@ async function loadPost(postId) {
 // 폼 제출 처리
 async function handleSubmit(e) {
   e.preventDefault();
-  
+
   if (!isAdmin) {
     alert('관리자만 글을 작성할 수 있습니다.');
     return;
   }
-  
-  const category = categoryInput.value;
-  const postData = {
-    category: category,
-    title: titleInput.value,
-    excerpt: excerptInput.value,
-    content: contentInput.value,
-    tags: tags,
-    updatedAt: new Date().toISOString(),
-  };
-  
+
+  const submitButton = e.target.querySelector('.btn-submit');
+  const originalButtonText = submitButton.textContent;
+
   try {
+    // 로딩 상태로 변경
+    submitButton.disabled = true;
+    submitButton.textContent = '업로드 중...';
+    submitButton.style.opacity = '0.6';
+
+    const category = categoryInput.value;
+    const postData = {
+      category: category,
+      title: titleInput.value,
+      excerpt: excerptInput.value,
+      content: contentInput.value,
+      tags: tags,
+      updatedAt: new Date().toISOString(),
+    };
+
     // 카테고리별 추가 필드
     if (category === 'travel') {
       // 이미지 업로드
-      if (travelImageInput.files && travelImageInput.files[0]) {
-        console.log('이미지 업로드 시작...');
-        const imageUrl = await uploadImage(travelImageInput.files[0]);
-        postData.imageUrl = imageUrl;
-        console.log('이미지 URL 저장:', imageUrl);
-      } else if (imageUrlInput.value) {
+      if (travelImageInput.files && travelImageInput.files.length > 0) {
+        console.log(`${travelImageInput.files.length}개의 이미지 업로드 시작...`);
+        submitButton.textContent = `이미지 업로드 중 (0/${travelImageInput.files.length})...`;
+
+        const imageUrls = [];
+        const files = Array.from(travelImageInput.files);
+
+        for (let i = 0; i < files.length; i++) {
+          submitButton.textContent = `이미지 업로드 중 (${i + 1}/${files.length})...`;
+          console.log(`이미지 ${i + 1}/${files.length} 업로드 중...`);
+
+          const imageUrl = await uploadImage(files[i]);
+          imageUrls.push(imageUrl);
+
+          console.log(`이미지 ${i + 1} 업로드 완료:`, imageUrl);
+        }
+
+        postData.imageUrls = imageUrls;
+        console.log('모든 이미지 URL 저장:', imageUrls);
+      } else if (imageUrlsInput.value) {
         // 기존 이미지 URL 유지 (수정 모드)
-        postData.imageUrl = imageUrlInput.value;
+        postData.imageUrls = JSON.parse(imageUrlsInput.value);
       }
 
       postData.location = locationInput.value;
@@ -255,7 +292,9 @@ async function handleSubmit(e) {
       postData.emoji = projectEmojiInput.value;
       postData.status = statusInput.value;
     }
-    
+
+    submitButton.textContent = '저장 중...';
+
     if (currentPostId) {
       // 수정
       const docRef = doc(db, 'posts', currentPostId);
@@ -267,12 +306,17 @@ async function handleSubmit(e) {
       await addDoc(collection(db, 'posts'), postData);
       alert('글이 발행되었습니다!');
     }
-    
+
     // 해당 카테고리 페이지로 이동
     window.location.href = `/${postData.category}/`;
   } catch (error) {
     console.error('저장 실패:', error);
     alert('글 저장에 실패했습니다: ' + error.message);
+
+    // 버튼 복원
+    submitButton.disabled = false;
+    submitButton.textContent = originalButtonText;
+    submitButton.style.opacity = '1';
   }
 }
 
@@ -315,15 +359,48 @@ window.removeTag = function(tag) {
 
 // 이미지 미리보기
 function handleImagePreview(e) {
-  const file = e.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      previewImg.src = e.target.result;
-      imagePreviewDiv.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+  const files = Array.from(e.target.files);
+
+  if (files.length === 0) return;
+
+  // 이미지 크기 검증 (5MB 제한)
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  const oversizedFiles = files.filter(file => file.size > maxSize);
+
+  if (oversizedFiles.length > 0) {
+    alert(`일부 이미지가 너무 큽니다 (최대 5MB). 큰 이미지를 제거하고 다시 선택해주세요.\n큰 파일: ${oversizedFiles.map(f => f.name).join(', ')}`);
+    travelImageInput.value = ''; // 파일 선택 초기화
+    return;
   }
+
+  // 미리보기 컨테이너 초기화
+  previewContainer.innerHTML = '';
+
+  files.forEach((file, index) => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imgWrapper = document.createElement('div');
+        imgWrapper.style.cssText = 'position: relative; width: 150px;';
+
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = `미리보기 ${index + 1}`;
+        img.style.cssText = 'width: 100%; height: 150px; object-fit: cover; border-radius: 8px;';
+
+        const fileName = document.createElement('div');
+        fileName.textContent = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
+        fileName.style.cssText = 'font-size: 11px; color: #666; margin-top: 4px; text-align: center;';
+
+        imgWrapper.appendChild(img);
+        imgWrapper.appendChild(fileName);
+        previewContainer.appendChild(imgWrapper);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  imagePreviewDiv.style.display = 'block';
 }
 
 // 이미지 Firebase Storage에 업로드
