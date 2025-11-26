@@ -191,8 +191,7 @@ async function loadPost(postId) {
       // 카테고리별 필드 복원
       if (post.category === 'travel') {
         locationInput.value = post.location || '';
-        emojiInput.value = post.emoji || '';
-        
+
         // 기존 이미지 URL 복원
         if (post.imageUrl) {
           imageUrlInput.value = post.imageUrl;
@@ -250,9 +249,8 @@ async function handleSubmit(e) {
         // 기존 이미지 URL 유지 (수정 모드)
         postData.imageUrl = imageUrlInput.value;
       }
-      
+
       postData.location = locationInput.value;
-      postData.emoji = emojiInput.value;
     } else if (category === 'projects') {
       postData.emoji = projectEmojiInput.value;
       postData.status = statusInput.value;
