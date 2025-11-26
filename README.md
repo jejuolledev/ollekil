@@ -19,11 +19,10 @@ iOS 엔지니어의 개인 블로그 & 디지털 가든
 
 ## 📂 프로젝트 구조
 
+### Public Repository (이 저장소)
 ```
 ollekil/
 ├── index.html              # 메인 랜딩 페이지
-├── admin/                  # 관리자 페이지
-│   └── index.html         # 글쓰기/수정 에디터
 ├── log/                    # 일상 로그
 ├── tech/                   # 기술 블로그
 ├── travel/                 # 여행 기록
@@ -34,11 +33,16 @@ ollekil/
 │   ├── js/                # JavaScript
 │   │   ├── firebase-config.js      # Firebase 설정
 │   │   ├── github-uploader.js      # GitHub 이미지 업로더
-│   │   └── admin-editor.js         # 관리자 에디터
+│   │   └── common.js               # 공통 유틸
 │   └── images/            # 이미지 파일
-│       └── travel/        # 여행 포스트 이미지 (GitHub에 저장)
-└── GITHUB_IMAGE_UPLOAD_GUIDE.md   # 이미지 업로드 가이드
+│       └── travel/        # 여행 포스트 이미지
+└── ADMIN_SETUP.md         # 관리자 페이지 설정 가이드
 ```
+
+### Private Repository (별도 관리)
+관리자 페이지는 보안을 위해 **별도의 Private Repository**에서 관리합니다.
+- Repository: `ollekil-admin` (Private)
+- 설정 방법: [ADMIN_SETUP.md](ADMIN_SETUP.md) 참고
 
 ## 🚀 로컬 실행
 
@@ -100,20 +104,25 @@ http-server
 ## 📝 컨텐츠 추가
 
 ### 관리자 페이지에서 작성 (권장)
-1. `/admin/` 페이지 접속
+
+관리자 페이지는 별도의 **Private Repository**에서 관리됩니다.
+
+**설정 방법:** [ADMIN_SETUP.md](ADMIN_SETUP.md) 참고
+
+**사용법:**
+1. Private Admin Panel 접속 (로컬 또는 배포 URL)
 2. Google 계정으로 로그인 (관리자 이메일만 접근 가능)
 3. 카테고리 선택 (Log, Tech, Travel, Projects)
 4. 제목, 본문, 태그 입력
 5. Travel 포스트의 경우 이미지 업로드 가능
 6. "발행하기" 클릭
 
-### 이미지 업로드 방법
-Travel 포스트에 이미지를 추가하려면:
-1. GitHub Personal Access Token 생성 ([가이드](GITHUB_IMAGE_UPLOAD_GUIDE.md) 참고)
-2. 첫 업로드 시 토큰 입력 (이후 자동 저장)
-3. 여러 이미지 선택 가능 (Ctrl/Cmd + 클릭)
-4. 이미지는 `assets/images/travel/` 폴더에 자동 저장
-5. GitHub Pages URL로 자동 서빙
+### 이미지 업로드
+- 이미지는 GitHub API를 통해 이 Public Repository에 저장
+- GitHub Token은 Private Admin Repo의 `config.js`에 안전하게 저장
+- 여러 이미지 선택 가능 (Ctrl/Cmd + 클릭)
+- 자동으로 `assets/images/travel/` 폴더에 저장
+- GitHub Pages URL로 자동 서빙
 
 ## 🌐 배포
 
