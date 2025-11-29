@@ -4,7 +4,7 @@
 
 // Firebase SDK import (CDN 사용)
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, getDoc, addDoc, doc, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Firebase 설정
 const firebaseConfig = {
@@ -21,12 +21,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Export (읽기 전용 - 블로그 표시용)
+// Export (블로그 표시 + 더미 데이터 추가용)
 export {
   db,
   collection,
   getDocs,
   getDoc,
+  addDoc,
   doc,
   query,
   orderBy,
