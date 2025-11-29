@@ -3,28 +3,16 @@
 // ============================================
 
 import {
-  auth,
   db,
-  onAuthStateChanged,
   collection,
   getDocs,
   query,
-  orderBy,
-  doc,
-  deleteDoc,
-  ADMIN_EMAIL
+  orderBy
 } from './firebase-config.js';
 
-// 상태
-let isAdmin = false;
-
-// 초기화
+// 초기화 - 바로 포스트 로드 (인증 불필요, 공개 블로그)
 document.addEventListener('DOMContentLoaded', async () => {
-  // 인증 상태 확인
-  onAuthStateChanged(auth, async (user) => {
-    isAdmin = user && user.email === ADMIN_EMAIL;
-    await loadPosts();
-  });
+  await loadPosts();
 });
 
 // 포스트 불러오기
@@ -106,18 +94,11 @@ function renderDefaultPost(post) {
     month: '2-digit',
     day: '2-digit'
   }).replace(/\. /g, '.').replace('.', '');
-  
-  const tags = (post.tags || []).map(tag => 
+
+  const tags = (post.tags || []).map(tag =>
     `<span class="tag">${tag}</span>`
   ).join('');
-  
-  const adminControls = isAdmin ? `
-    <div class="admin-controls">
-      <button class="btn-edit" onclick="editPost('${post.id}')">수정</button>
-      <button class="btn-delete" onclick="deletePost('${post.id}')">삭제</button>
-    </div>
-  ` : '';
-  
+
   return `
     <article class="post-card" data-id="${post.id}">
       <time class="post-date">${date}</time>
@@ -126,7 +107,6 @@ function renderDefaultPost(post) {
       </h2>
       <p class="post-excerpt">${post.excerpt || post.content.substring(0, 150) + '...'}</p>
       <div class="post-tags">${tags}</div>
-      ${adminControls}
     </article>
   `;
 }
@@ -137,13 +117,6 @@ function renderTravelPost(post) {
     year: 'numeric',
     month: 'long'
   });
-
-  const adminControls = isAdmin ? `
-    <div class="admin-controls" style="margin-top: var(--spacing-md);">
-      <button class="btn-edit" onclick="editPost('${post.id}')">수정</button>
-      <button class="btn-delete" onclick="deletePost('${post.id}')">삭제</button>
-    </div>
-  ` : '';
 
   // 이미지 URL이 있으면 실제 이미지 표시, 없으면 기본 이모지 표시
   // 여러 이미지가 있으면 첫 번째 이미지를 대표로 사용
@@ -166,31 +139,23 @@ function renderTravelPost(post) {
           <p class="travel-excerpt">${post.excerpt || post.content.substring(0, 150) + '...'}</p>
         </div>
       </a>
-      ${adminControls}
     </article>
   `;
 }
 
 // Projects 포스트 렌더링
 function renderProjectPost(post) {
-  const tags = (post.tags || []).map(tag => 
+  const tags = (post.tags || []).map(tag =>
     `<span class="tech-badge">${tag}</span>`
   ).join('');
-  
-  const links = (post.links || []).map(link => 
+
+  const links = (post.links || []).map(link =>
     `<a href="${link.url}" class="project-link">
       <span>${link.emoji || '🔗'}</span>
       ${link.label}
     </a>`
   ).join('');
-  
-  const adminControls = isAdmin ? `
-    <div class="admin-controls" style="margin-top: var(--spacing-md);">
-      <button class="btn-edit" onclick="editPost('${post.id}')">수정</button>
-      <button class="btn-delete" onclick="deletePost('${post.id}')">삭제</button>
-    </div>
-  ` : '';
-  
+
   return `
     <article class="project-card" data-id="${post.id}">
       <div class="project-header">
@@ -205,28 +170,6 @@ function renderProjectPost(post) {
       <p class="project-description">${post.content}</p>
       <div class="project-tech">${tags}</div>
       <div class="project-links">${links}</div>
-      ${adminControls}
     </article>
   `;
 }
-
-// 포스트 수정
-window.editPost = function(postId) {
-  window.location.href = `/admin/?edit=${postId}`;
-};
-
-// 포스트 삭제
-window.deletePost = async function(postId) {
-  if (!confirm('정말 이 글을 삭제하시겠습니까?')) {
-    return;
-  }
-  
-  try {
-    await deleteDoc(doc(db, 'posts', postId));
-    alert('글이 삭제되었습니다.');
-    await loadPosts(); // 새로고침
-  } catch (error) {
-    console.error('삭제 실패:', error);
-    alert('글 삭제에 실패했습니다.');
-  }
-};
