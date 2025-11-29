@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>더미 데이터 추가</title>
+  <style>
+    body {
+      font-family: 'Pretendard Variable', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2563EB;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #2563EB;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #log {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-family: 'Monaco', monospace;
+      font-size: 14px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .log-item {
+      margin: 5px 0;
+      padding: 5px;
+    }
+    .log-success {
+      color: #10B981;
+    }
+    .log-error {
+      color: #EF4444;
+    }
+    .log-info {
+      color: #6B7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 ollekil 더미 데이터 추가</h1>
+    <p>각 카테고리별로 2개씩 더미 포스트를 생성합니다.</p>
+
+    <div>
+      <button id="addAllBtn">전체 추가 (8개)</button>
+      <button id="clearBtn">로그 지우기</button>
+    </div>
+
+    <div id="log"></div>
+  </div>
+
+  <script type="module">
+    import {
+      db,
+      collection,
+      addDoc
+    } from '../assets/js/firebase-config.js';
+
+    const logEl = document.getElementById('log');
+    const addAllBtn = document.getElementById('addAllBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function log(message, type = 'info') {
+      const item = document.createElement('div');
+      item.className = `log-item log-${type}`;
+      item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logEl.appendChild(item);
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(message);
+    }
+
+    // 더미 데이터
+    const dummyPosts = [
+      // Log 카테고리 2개
+      {
+        category: 'log',
+        title: '블로그를 새롭게 단장했습니다',
+        excerpt: '순수 HTML/CSS/JS로 만든 미니멀한 블로그입니다.',
+        content: `오랜만에 블로그를 새롭게 단장했습니다. 무거운 프레임워크 없이 순수 웹 기술만으로 만들어봤어요.
+
+Firebase Firestore를 사용해서 동적으로 콘텐츠를 관리하고, GitHub에 이미지를 저장하는 방식으로 완전 무료로 운영할 수 있게 되었습니다.
+
+디자인은 심플하게, 글 쓰기에 집중할 수 있도록 만들었습니다. 앞으로 일상, 기술, 여행, 프로젝트에 대한 이야기를 천천히 풀어나가려고 합니다.`,
+        tags: ['블로그', '회고'],
+        createdAt: new Date('2024-11-01T10:00:00').toISOString(),
+        updatedAt: new Date('2024-11-01T10:00:00').toISOString()
+      },
+      {
+        category: 'log',
+        title: '제주도 올레길을 걷고 나서',
+        excerpt: '제주 올레길 1코스를 완주한 소감을 적어봅니다.',
+        content: `오늘 제주 올레길 1코스를 완주했습니다. 시작점부터 종점까지 약 3시간 정도 걸렸는데, 생각보다 훨씬 아름다웠어요.
+
+특히 바다가 보이는 구간이 정말 인상적이었습니다. 파도 소리를 들으며 걷다 보니 복잡했던 머릿속이 정리되는 느낌이었습니다.
+
+다음엔 2코스에 도전해볼 생각입니다. 걷기 좋은 날씨가 계속되길 바라며!`,
+        tags: ['제주도', '올레길', '산책'],
+        createdAt: new Date('2024-11-15T14:30:00').toISOString(),
+        updatedAt: new Date('2024-11-15T14:30:00').toISOString()
+      },
+
+      // Tech 카테고리 2개
+      {
+        category: 'tech',
+        title: 'Firebase Firestore 보안 규칙 설정하기',
+        excerpt: 'Firestore 보안 규칙을 올바르게 설정하는 방법을 알아봅니다.',
+        content: `Firebase Firestore를 사용할 때 가장 중요한 것 중 하나가 바로 보안 규칙입니다.
+
+## 기본 구조
+
+\`\`\`javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /posts/{post} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+\`\`\`
+
+## 읽기 권한
+공개 블로그의 경우 \`allow read: if true\`로 설정하여 누구나 읽을 수 있게 합니다.
+
+## 쓰기 권한
+\`allow write: if request.auth != null\`로 설정하여 인증된 사용자만 쓸 수 있게 제한합니다.
+
+이렇게 하면 공개 블로그이지만 관리자만 글을 작성할 수 있는 구조가 완성됩니다.`,
+        tags: ['Firebase', 'Firestore', '보안', 'Backend'],
+        createdAt: new Date('2024-11-20T09:00:00').toISOString(),
+        updatedAt: new Date('2024-11-20T09:00:00').toISOString()
+      },
+      {
+        category: 'tech',
+        title: 'iOS SwiftUI에서 MVVM 패턴 적용하기',
+        excerpt: 'SwiftUI 프로젝트에 MVVM 아키텍처를 적용하는 실전 가이드',
+        content: `SwiftUI에서 MVVM 패턴을 적용하면 코드의 재사용성과 테스트 용이성이 크게 향상됩니다.
+
+## MVVM이란?
+
+- **Model**: 데이터와 비즈니스 로직
+- **View**: UI 표현
+- **ViewModel**: View와 Model 사이의 중재자
+
+## SwiftUI에서의 구현
+
+\`\`\`swift
+class UserViewModel: ObservableObject {
+    @Published var users: [User] = []
+
+    func fetchUsers() {
+        // API 호출
+    }
+}
+
+struct UserListView: View {
+    @StateObject private var viewModel = UserViewModel()
+
+    var body: some View {
+        List(viewModel.users) { user in
+            Text(user.name)
+        }
+        .onAppear {
+            viewModel.fetchUsers()
+        }
+    }
+}
+\`\`\`
+
+@Published와 @StateObject를 활용하면 자동으로 UI가 업데이트됩니다.`,
+        tags: ['iOS', 'SwiftUI', 'MVVM', 'Architecture'],
+        createdAt: new Date('2024-11-25T11:00:00').toISOString(),
+        updatedAt: new Date('2024-11-25T11:00:00').toISOString()
+      },
+
+      // Travel 카테고리 2개
+      {
+        category: 'travel',
+        title: '부산 해운대 야경',
+        excerpt: '겨울 바다의 야경이 아름다운 부산 해운대를 다녀왔습니다.',
+        content: `부산 해운대의 겨울 야경을 보러 다녀왔습니다. 낮과는 또 다른 매력이 있더라고요.
+
+마린시티의 고층 빌딩들이 바다에 반사되는 모습이 정말 환상적이었습니다. 추운 날씨였지만 그만큼 공기가 맑아서 야경이 더 선명하게 보였어요.
+
+광안대교까지 걸어가면서 찍은 사진들도 모두 인생샷이 되었습니다. 부산은 언제 와도 좋은 것 같아요.`,
+        location: '부산 해운대',
+        tags: ['부산', '해운대', '야경', '여행'],
+        imageUrls: [],
+        createdAt: new Date('2024-11-10T20:00:00').toISOString(),
+        updatedAt: new Date('2024-11-10T20:00:00').toISOString()
+      },
+      {
+        category: 'travel',
+        title: '경주 불국사와 석굴암',
+        excerpt: '유네스코 세계문화유산, 경주 불국사와 석굴암을 방문했습니다.',
+        content: `천년 고도 경주에 있는 불국사와 석굴암을 다녀왔습니다.
+
+불국사는 정말 웅장하고 아름다웠습니다. 특히 다보탑과 석가탑의 조화가 인상적이었어요. 가을 단풍과 어우러진 모습은 사진으로 담기 아까울 정도였습니다.
+
+석굴암은 입구부터 신비로운 분위기가 가득했습니다. 본존불의 미소가 너무나 자비로워서 한참을 바라보게 되더라고요.
+
+역사와 문화를 느낄 수 있는 정말 좋은 여행이었습니다.`,
+        location: '경주 불국사',
+        tags: ['경주', '불국사', '석굴암', '문화재'],
+        imageUrls: [],
+        createdAt: new Date('2024-11-18T15:00:00').toISOString(),
+        updatedAt: new Date('2024-11-18T15:00:00').toISOString()
+      },
+
+      // Projects 카테고리 2개
+      {
+        category: 'projects',
+        title: 'MBTI 궁합 테스트',
+        excerpt: 'MBTI 유형별 궁합을 재미있게 테스트해볼 수 있는 웹 서비스',
+        content: `MBTI 유형별 궁합을 테스트해볼 수 있는 재미있는 웹 서비스입니다.
+
+자신의 MBTI와 상대방의 MBTI를 선택하면 궁합 점수와 함께 재미있는 분석 결과를 제공합니다.
+
+Next.js와 TypeScript로 개발했으며, 반응형 디자인으로 모바일에서도 편하게 이용할 수 있습니다.`,
+        emoji: '💕',
+        status: 'active',
+        tags: ['Next.js', 'TypeScript', 'MBTI', 'Web'],
+        links: [
+          {
+            url: 'https://mbti.moahub.co.kr',
+            label: '서비스 바로가기',
+            emoji: '🔗'
+          }
+        ],
+        createdAt: new Date('2024-10-15T09:00:00').toISOString(),
+        updatedAt: new Date('2024-11-28T09:00:00').toISOString()
+      },
+      {
+        category: 'projects',
+        title: 'ollekil 블로그',
+        excerpt: '순수 HTML/CSS/JS로 만든 미니멀한 개인 블로그',
+        content: `무거운 프레임워크 없이 순수 웹 기술만으로 만든 개인 블로그입니다.
+
+Firebase Firestore를 백엔드로 사용하고, GitHub에 이미지를 저장하여 완전 무료로 운영할 수 있습니다.
+
+관리자 페이지는 별도의 Private Repository로 관리하여 보안을 유지하고, 공개 블로그는 누구나 볼 수 있도록 구성했습니다.`,
+        emoji: '✍️',
+        status: 'active',
+        tags: ['HTML', 'CSS', 'JavaScript', 'Firebase'],
+        links: [
+          {
+            url: 'https://ollekil.moahub.co.kr',
+            label: '블로그 보기',
+            emoji: '🌐'
+          },
+          {
+            url: 'https://github.com/jejuolledev/ollekil',
+            label: 'GitHub',
+            emoji: '💻'
+          }
+        ],
+        createdAt: new Date('2024-11-01T10:00:00').toISOString(),
+        updatedAt: new Date('2024-11-29T10:00:00').toISOString()
+      }
+    ];
+
+    // 전체 추가
+    async function addAllPosts() {
+      addAllBtn.disabled = true;
+      log('더미 데이터 추가 시작...', 'info');
+
+      try {
+        for (let i = 0; i < dummyPosts.length; i++) {
+          const post = dummyPosts[i];
+          log(`[${i + 1}/${dummyPosts.length}] ${post.category} - "${post.title}" 추가 중...`, 'info');
+
+          const docRef = await addDoc(collection(db, 'posts'), post);
+          log(`✅ 성공! ID: ${docRef.id}`, 'success');
+
+          // 너무 빠르게 요청하지 않도록 약간의 딜레이
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+
+        log('', 'info');
+        log('🎉 모든 더미 데이터 추가 완료!', 'success');
+        log('블로그 페이지를 새로고침하여 확인하세요.', 'info');
+      } catch (error) {
+        log(`❌ 에러 발생: ${error.message}`, 'error');
+        console.error('Error adding posts:', error);
+      } finally {
+        addAllBtn.disabled = false;
+      }
+    }
+
+    // 이벤트 리스너
+    addAllBtn.addEventListener('click', addAllPosts);
+    clearBtn.addEventListener('click', () => {
+      logEl.innerHTML = '';
+    });
+
+    // 초기 메시지
+    log('준비 완료! "전체 추가" 버튼을 클릭하세요.', 'info');
+  </script>
+</body>
+</html>
