@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 /* ============================================
    공통 스타일 (모든 페이지 공통)
    ============================================ */
@@ -52,6 +54,22 @@
 
 .text-small {
   font-size: var(--font-size-sm);
+}
+
+/* Kakao AdFit Common */
+.adfit-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 16px 0;
+  overflow-x: hidden;
+  min-height: 50px;
+  /* CLS Prevention */
+}
+
+.adfit-center--cta-gap {
+  margin: 16px 0 22px;
 }
 
 /* 카드 */
@@ -129,14 +147,25 @@
   .grid-2 {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .grid-3 {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* 유틸리티 */
-.mt-lg { margin-top: var(--spacing-lg); }
-.mb-lg { margin-bottom: var(--spacing-lg); }
-.mt-xl { margin-top: var(--spacing-xl); }
-.mb-xl { margin-bottom: var(--spacing-xl); }
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mt-xl {
+  margin-top: var(--spacing-xl);
+}
+
+.mb-xl {
+  margin-bottom: var(--spacing-xl);
+}
